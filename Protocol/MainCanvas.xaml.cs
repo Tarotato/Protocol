@@ -31,12 +31,14 @@ namespace Protocol
 		// fields for dry erasing
 		private bool _isErasing;
 		private Point _lastPoint;
-		private List<InkStrokeContainer> _strokes;
+		private List<InkStrokeContainer> _strokes = new List<InkStrokeContainer>();
 		private InkSynchronizer _inkSynchronizer;
 
 		public MainCanvas()
 		{
 			this.InitializeComponent();
+
+			Loaded += MainCanvas_Loaded;
 
 			// Add Touch to input types
 			inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen | CoreInputDeviceTypes.Touch;
@@ -44,28 +46,10 @@ namespace Protocol
 			// Turn on multi pointer input
 			inkCanvas.InkPresenter.ActivateCustomDrying();
 			inkCanvas.InkPresenter.SetPredefinedConfiguration(Windows.UI.Input.Inking.InkPresenterPredefinedConfiguration.SimpleMultiplePointer);
-
-			//// Handle erase all strokes
-			//var flyout = FlyoutBase.GetAttachedFlyout(eraser) as Flyout;
-
-			//if (flyout != null)
-			//{
-			//	var button = flyout.Content as Button;
-
-			//	if (button != null)
-			//	{
-			//		var newButton = new Button();
-			//		newButton.Style = button.Style;
-			//		newButton.Content = button.Content;
-
-			//		newButton.Click += EraseAllInk;
-			//		flyout.Content = newButton;
-			//	}
-			//}
 		}
 
 		// Code for erasing dry ink from https://blogs.msdn.microsoft.com/synergist/2016/08/26/using-the-inktoolbar-with-custom-dry-ink-in-windows-anniversary-edition/
-		private void MainPage_Loaded(object sender, RoutedEventArgs e)
+		private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
 		{
 			var inkPresenter = inkCanvas.InkPresenter;
 
@@ -80,7 +64,26 @@ namespace Protocol
 				eraser.Checked += Eraser_Checked;
 				eraser.Unchecked += Eraser_Unchecked;
 			}
+
+			// Handle erase all strokes
+			var flyout = FlyoutBase.GetAttachedFlyout(eraser) as Flyout;
+
+			if (flyout != null)
+			{
+				var button = flyout.Content as Button;
+
+				if (button != null)
+				{
+					var newButton = new Button();
+					newButton.Style = button.Style;
+					newButton.Content = button.Content;
+
+					newButton.Click += EraseAllInk;
+					flyout.Content = newButton;
+				}
+			}
 		}
+
 		private void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
 		{
 			var strokes = _inkSynchronizer.BeginDry();
