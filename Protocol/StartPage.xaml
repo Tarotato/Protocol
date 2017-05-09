@@ -8,10 +8,27 @@
 	mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<TextBlock HorizontalAlignment="Center">Welcome to Protocol</TextBlock>
-		<Button x:Name="New" 
-				Content="+New Project" 
-				HorizontalAlignment="Center"
-				Click="OnNewProjectClick" />
+		
+		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+			<TextBlock HorizontalAlignment="Center" FontSize="48" Margin="12">Welcome to Protocol</TextBlock>
+
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+				<Button x:Name="NewProject" Click="OnNewProjectClick" Margin="12" Width="160">
+					<StackPanel>
+						<Image Source="Assets/glyphicons-433-plus.png" Height="32" Margin="22"/>
+						<TextBlock Text="New Project" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
+					</StackPanel>
+				</Button>
+
+				<Button x:Name="OpenProject" Click="OnOpenProjectClick" Margin="12" Width="160">
+					<StackPanel>
+						<Image Source="Assets/glyphicons-145-folder-open.png" Height="32" Margin="22"/>
+						<TextBlock Text="Open Project" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
+					</StackPanel>
+				</Button>
+			</StackPanel>
+			
+		</StackPanel>
+		
 	</Grid>
 </Page>

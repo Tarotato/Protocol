@@ -31,5 +31,10 @@ namespace Protocol
 		{
 			this.Frame.Navigate(typeof(MainCanvas));
 		}
+
+		private void OnOpenProjectClick(object sender, RoutedEventArgs e)
+		{
+			// implement later
+		}
 	}
 }
