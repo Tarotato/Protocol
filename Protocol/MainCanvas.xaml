@@ -5,6 +5,7 @@
 	xmlns:local="using:Protocol"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
 	mc:Ignorable="d">
 
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -13,15 +14,13 @@
 		</Grid.RowDefinitions>
 
 		<Grid Grid.Row="1">
-			<InkCanvas x:Name="inkCanvas"/>
+			<canvas:CanvasControl x:Name="drawingCanvas" />
+			<InkCanvas x:Name="inkCanvas" />
+
 			<InkToolbar x:Name="inkToolbar"
 				VerticalAlignment="Bottom"
-				TargetInkCanvas="{x:Bind inkCanvas}" >
-				<InkToolbarBallpointPenButton />
-				<InkToolbarPencilButton/>
-				<InkToolbarEraserButton />
-				
-			</InkToolbar>
+				TargetInkCanvas="{x:Bind inkCanvas}" />
+			
 		</Grid>
 	</Grid>
 </Page>
