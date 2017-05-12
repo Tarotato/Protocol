@@ -19,8 +19,20 @@
 
 			<InkToolbar x:Name="inkToolbar"
 				VerticalAlignment="Bottom"
-				TargetInkCanvas="{x:Bind inkCanvas}" />
-			
+				TargetInkCanvas="{x:Bind inkCanvas}" 
+				HorizontalAlignment="Center">
+
+				<InkToolbarCustomToolButton 
+					x:Name="addShapeToolButton" 
+					Click="addShapeToolButton_Click" 
+					ToolTipService.ToolTip="Add Shape Tool">
+					<SymbolIcon Symbol="Stop"/>
+
+				</InkToolbarCustomToolButton>
+			</InkToolbar>
+
+
+
 		</Grid>
 	</Grid>
 </Page>

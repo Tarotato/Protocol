@@ -33,19 +33,14 @@ namespace Protocol
 
 		public MainCanvas()
 		{
+			Symbol SelectIcon = (Symbol)0xEF20;
 			this.InitializeComponent();
+			inkToolbar.Loading += inkToolbar_Loading;
 
-			Loaded += MainCanvas_Loaded;
+			Loaded += MainCanvas_Loaded;			
 
 			viewModel = new MainCanvasViewModel();
 			viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
-
-			// Add Touch to input types
-			inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen | CoreInputDeviceTypes.Touch;
-
-			// Turn on multi pointer input
-			inkCanvas.InkPresenter.ActivateCustomDrying();
-			inkCanvas.InkPresenter.SetPredefinedConfiguration(Windows.UI.Input.Inking.InkPresenterPredefinedConfiguration.SimpleMultiplePointer);
 		}
 
 		// Code for erasing dry ink from https://blogs.msdn.microsoft.com/synergist/2016/08/26/using-the-inktoolbar-with-custom-dry-ink-in-windows-anniversary-edition/
@@ -53,8 +48,16 @@ namespace Protocol
 		{
 			var inkPresenter = inkCanvas.InkPresenter;
 
+			// Add Touch to input types
+			inkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen | CoreInputDeviceTypes.Touch;
+
+			// Turn on multi pointer input
+			inkPresenter.ActivateCustomDrying();
+			inkPresenter.SetPredefinedConfiguration(Windows.UI.Input.Inking.InkPresenterPredefinedConfiguration.SimpleMultiplePointer);
+
 			_inkSynchronizer = inkPresenter.ActivateCustomDrying();
 			inkPresenter.StrokesCollected += InkPresenter_StrokesCollected;
+
 
 			// Handle checked and unchecked events for eraser (for erasing dry ink)
 			var eraser = inkToolbar.GetToolButton(InkToolbarTool.Eraser) as InkToolbarEraserButton;
@@ -126,5 +129,26 @@ namespace Protocol
 		{
 			drawingCanvas.Invalidate();
 		}
+
+		private void inkToolbar_Loading(FrameworkElement sender, object args)
+		{
+			// Clear all built-in buttons from the InkToolbar.
+			inkToolbar.InitialControls = InkToolbarInitialControls.None;
+
+			InkToolbarEraserButton eraser = new InkToolbarEraserButton();
+			InkToolbarBallpointPenButton ballpoint = new InkToolbarBallpointPenButton();
+			InkToolbarPencilButton pencil = new InkToolbarPencilButton();
+			InkToolbarRulerButton ruler = new InkToolbarRulerButton();
+			inkToolbar.Children.Add(eraser);
+			inkToolbar.Children.Add(ballpoint);
+			inkToolbar.Children.Add(pencil);
+			inkToolbar.Children.Add(ruler);
+		}
+
+		private void addShapeToolButton_Click(object sender, RoutedEventArgs e)
+		{
+
+		}
+
 	}
 }
