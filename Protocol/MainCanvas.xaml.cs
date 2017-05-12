@@ -23,15 +23,12 @@ using Windows.UI.Xaml.Navigation;
 namespace Protocol
 {
 	/// <summary>
-	/// The main page holding the toolbar and ink canvas
+	/// The main page holding the canvas and toolbar
 	/// </summary>
 	public sealed partial class MainCanvas : Page
 	{
 		private MainCanvasViewModel viewModel;
-		// fields for dry erasing
-		private bool _isErasing;
-		private Point _lastPoint;
-		private List<InkStrokeContainer> _strokes = new List<InkStrokeContainer>();
+
 		private InkSynchronizer _inkSynchronizer;
 
 		public MainCanvas()
@@ -90,7 +87,7 @@ namespace Protocol
 			var container = new InkStrokeContainer();
 
 			container.AddStrokes(from item in strokes select item.Clone());
-			_strokes.Add(container);
+			viewModel.AddStroke(container);
 			_inkSynchronizer.EndDry();
 
 			drawingCanvas.Invalidate();
@@ -98,25 +95,7 @@ namespace Protocol
 
 		private void DrawCanvas(CanvasControl sender, CanvasDrawEventArgs args)
 		{
-			DrawInk(args.DrawingSession);
-		}
-
-		private void DrawInk(CanvasDrawingSession session)
-		{
-			foreach (var item in _strokes)
-			{
-				var strokes = item.GetStrokes();
-
-				using (var list = new CanvasCommandList(session))
-				{
-					using (var listSession = list.CreateDrawingSession())
-					{
-						listSession.DrawInk(strokes);
-					}
-				}
-
-				session.DrawInk(strokes);
-			}
+			vieModel.DrawInk(args.DrawingSession);
 		}
 
 		private void Eraser_Checked(object sender, RoutedEventArgs e)

@@ -136,12 +136,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Protocol.Data\Protocol.Data.csproj">
-      <Project>{630d6d94-44a6-4312-8cea-894104681ca7}</Project>
-      <Name>Protocol.Data</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
