@@ -35,7 +35,10 @@ namespace Protocol
 		{
 			this.InitializeComponent();
 
-            Loaded += MainCanvas_Loaded;
+			Loaded += MainCanvas_Loaded;
+
+			viewModel = new MainCanvasViewModel();
+			viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
 
 			// Add Touch to input types
 			inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen | CoreInputDeviceTypes.Touch;
@@ -95,114 +98,32 @@ namespace Protocol
 
 		private void DrawCanvas(CanvasControl sender, CanvasDrawEventArgs args)
 		{
-			vieModel.DrawInk(args.DrawingSession);
+			viewModel.DrawInk(args.DrawingSession);
 		}
 
 		private void Eraser_Checked(object sender, RoutedEventArgs e)
 		{
 			var unprocessedInput = inkCanvas.InkPresenter.UnprocessedInput;
-
-			unprocessedInput.PointerPressed += UnprocessedInput_PointerPressed;
-			unprocessedInput.PointerMoved += UnprocessedInput_PointerMoved;
-			unprocessedInput.PointerReleased += UnprocessedInput_PointerReleased;
-			unprocessedInput.PointerExited += UnprocessedInput_PointerExited;
-			unprocessedInput.PointerLost += UnprocessedInput_PointerLost;
-
+			viewModel.AddListeners(unprocessedInput);
 			inkCanvas.InkPresenter.InputProcessingConfiguration.Mode = InkInputProcessingMode.None;
 		}
 
 		private void Eraser_Unchecked(object sender, RoutedEventArgs e)
 		{
 			var unprocessedInput = inkCanvas.InkPresenter.UnprocessedInput;
-
-			unprocessedInput.PointerPressed -= UnprocessedInput_PointerPressed;
-			unprocessedInput.PointerMoved -= UnprocessedInput_PointerMoved;
-			unprocessedInput.PointerReleased -= UnprocessedInput_PointerReleased;
-			unprocessedInput.PointerExited -= UnprocessedInput_PointerExited;
-			unprocessedInput.PointerLost -= UnprocessedInput_PointerLost;
-
+			viewModel.RemoveListeners(unprocessedInput);
 			inkCanvas.InkPresenter.InputProcessingConfiguration.Mode = InkInputProcessingMode.Inking;
-		}
-
-		private void UnprocessedInput_PointerMoved(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (!_isErasing)
-			{
-				return;
-			}
-
-			var invalidate = false;
-
-			foreach (var item in _strokes.ToArray())
-			{
-				var rect = item.SelectWithLine(_lastPoint, args.CurrentPoint.Position);
-
-				if (rect.IsEmpty)
-				{
-					continue;
-				}
-
-				if (rect.Width * rect.Height > 0)
-				{
-					_strokes.Remove(item);
-
-					invalidate = true;
-				}
-			}
-
-			_lastPoint = args.CurrentPoint.Position;
-
-			args.Handled = true;
-
-			if (invalidate)
-			{
-				drawingCanvas.Invalidate();
-			}
-		}
-
-		private void UnprocessedInput_PointerLost(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (_isErasing)
-			{
-				args.Handled = true;
-			}
-
-			_isErasing = false;
-		}
-
-		private void UnprocessedInput_PointerExited(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (_isErasing)
-			{
-				args.Handled = true;
-			}
-
-			_isErasing = true;
-		}
-
-		private void UnprocessedInput_PointerPressed(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			_lastPoint = args.CurrentPoint.Position;
-
-			args.Handled = true;
-
-			_isErasing = true;
-		}
-
-		private void UnprocessedInput_PointerReleased(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (_isErasing)
-			{
-				args.Handled = true;
-			}
-
-			_isErasing = false;
 		}
 
 		private void EraseAllInk(object sender, RoutedEventArgs e)
 		{
-			_strokes.Clear();
+			viewModel.ClearStokes();
 
+			drawingCanvas.Invalidate();
+		}
+		
+		private void Invalidate_DrawingCanvas()
+		{
 			drawingCanvas.Invalidate();
 		}
 	}
