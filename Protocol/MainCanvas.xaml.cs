@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Protocol.Data;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -33,12 +34,14 @@ namespace Protocol
 		private Point _lastPoint;
 		private List<InkStrokeContainer> _strokes = new List<InkStrokeContainer>();
 		private InkSynchronizer _inkSynchronizer;
+        private MainCanvasViewModel _mainCanvasViewModel;
 
 		public MainCanvas()
 		{
 			this.InitializeComponent();
+            _mainCanvasViewModel = new MainCanvasViewModel();
 
-			Loaded += MainCanvas_Loaded;
+            Loaded += MainCanvas_Loaded;
 
 			// Add Touch to input types
 			inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen | CoreInputDeviceTypes.Touch;
