@@ -17,7 +17,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Protocol.Data;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -28,18 +27,16 @@ namespace Protocol
 	/// </summary>
 	public sealed partial class MainCanvas : Page
 	{
-
+		private MainCanvasViewModel viewModel;
 		// fields for dry erasing
 		private bool _isErasing;
 		private Point _lastPoint;
 		private List<InkStrokeContainer> _strokes = new List<InkStrokeContainer>();
 		private InkSynchronizer _inkSynchronizer;
-        private MainCanvasViewModel _mainCanvasViewModel;
 
 		public MainCanvas()
 		{
 			this.InitializeComponent();
-            _mainCanvasViewModel = new MainCanvasViewModel();
 
             Loaded += MainCanvas_Loaded;
 
