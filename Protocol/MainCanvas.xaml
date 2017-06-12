@@ -24,11 +24,18 @@
 
 				<InkToolbarCustomToolButton 
 					x:Name="addShapeToolButton" 
-					Click="addShapeToolButton_Click" 
+					Click="AddShapeToolButton_Click" 
 					ToolTipService.ToolTip="Add Shape Tool">
 					<SymbolIcon Symbol="Stop"/>
 
 				</InkToolbarCustomToolButton>
+				
+				<InkToolbarCustomToggleButton 
+                x:Name="toggleTouchButton" 
+                Click="ToggleTouch_Click" 
+                ToolTipService.ToolTip="Toggle Touch">
+					<SymbolIcon Symbol="{x:Bind TouchWritingIcon}"/>
+				</InkToolbarCustomToggleButton>
 			</InkToolbar>
 
 

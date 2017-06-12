@@ -18,8 +18,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace Protocol
 {
 	/// <summary>
@@ -31,11 +29,13 @@ namespace Protocol
 
 		private InkSynchronizer _inkSynchronizer;
 
+		Symbol TouchWritingIcon = (Symbol)0xED5F;
+		Symbol SelectIcon = (Symbol)0xEF20;
+
 		public MainCanvas()
 		{
-			Symbol SelectIcon = (Symbol)0xEF20;
 			this.InitializeComponent();
-			inkToolbar.Loading += inkToolbar_Loading;
+			inkToolbar.Loading += InkToolbar_Loading;
 
 			Loaded += MainCanvas_Loaded;			
 
@@ -49,7 +49,7 @@ namespace Protocol
 			var inkPresenter = inkCanvas.InkPresenter;
 
 			// Add Touch to input types
-			inkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen | CoreInputDeviceTypes.Touch;
+			inkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen;
 
 			// Turn on multi pointer input
 			inkPresenter.ActivateCustomDrying();
@@ -130,7 +130,7 @@ namespace Protocol
 			drawingCanvas.Invalidate();
 		}
 
-		private void inkToolbar_Loading(FrameworkElement sender, object args)
+		private void InkToolbar_Loading(FrameworkElement sender, object args)
 		{
 			// Clear all built-in buttons from the InkToolbar.
 			inkToolbar.InitialControls = InkToolbarInitialControls.None;
@@ -145,9 +145,21 @@ namespace Protocol
 			inkToolbar.Children.Add(ruler);
 		}
 
-		private void addShapeToolButton_Click(object sender, RoutedEventArgs e)
+		private void AddShapeToolButton_Click(object sender, RoutedEventArgs e)
 		{
 
+		}
+
+		private void ToggleTouch_Click(object sender, RoutedEventArgs e)
+		{
+			if (toggleTouchButton.IsChecked == true)
+			{
+				inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Touch;
+			}
+			else
+			{
+				inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Pen;
+			}
 		}
 
 	}
