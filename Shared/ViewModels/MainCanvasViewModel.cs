@@ -152,7 +152,8 @@ namespace Protocol
             fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
             fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
 
-            if (await fileSavePicker.PickSaveFileAsync() != null)
+            StorageFile file = await fileSavePicker.PickSaveFileAsync();
+            if (file != null)
             {
                 // At this point, the app can begin writing to the provided save file
                 CanvasDevice device = CanvasDevice.GetSharedDevice();
@@ -167,7 +168,7 @@ namespace Protocol
                     }
                 }
 
-                using (var fileStream = await (await fileSavePicker.PickSaveFileAsync()).OpenAsync(FileAccessMode.ReadWrite))
+                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
                     await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
                 }
