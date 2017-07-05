@@ -1,22 +1,10 @@
-﻿using Microsoft.Graphics.Canvas;
-using Microsoft.Graphics.Canvas.Effects;
-using Microsoft.Graphics.Canvas.UI.Xaml;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 namespace Protocol
 {
@@ -29,10 +17,12 @@ namespace Protocol
 
 		private InkSynchronizer _inkSynchronizer;
 
-		Symbol TouchWritingIcon = (Symbol)0xED5F;
-		Symbol SelectIcon = (Symbol)0xEF20;
+        Symbol ShapeIcon = (Symbol)0xE15B;
+        Symbol TouchWritingIcon = (Symbol)0xED5F;
+        Symbol ExportIcon = (Symbol)0xE158;
+        Symbol SaveIcon = (Symbol)0xE105;
 
-		public MainCanvas()
+        public MainCanvas()
 		{
 			this.InitializeComponent();
 			inkToolbar.Loading += InkToolbar_Loading;
@@ -162,5 +152,15 @@ namespace Protocol
 			}
 		}
 
-	}
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.SaveAsImage(inkCanvas.ActualWidth, inkCanvas.ActualHeight);
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+    }
 }

@@ -26,17 +26,30 @@
 					x:Name="addShapeToolButton" 
 					Click="AddShapeToolButton_Click" 
 					ToolTipService.ToolTip="Add Shape Tool">
-					<SymbolIcon Symbol="Stop"/>
-
-				</InkToolbarCustomToolButton>
+                    <SymbolIcon Symbol="{x:Bind ShapeIcon}"/>
+                </InkToolbarCustomToolButton>
 				
 				<InkToolbarCustomToggleButton 
-                x:Name="toggleTouchButton" 
-                Click="ToggleTouch_Click" 
-                ToolTipService.ToolTip="Toggle Touch">
+                    x:Name="toggleTouchButton" 
+                    Click="ToggleTouch_Click" 
+                    ToolTipService.ToolTip="Toggle Touch">
 					<SymbolIcon Symbol="{x:Bind TouchWritingIcon}"/>
 				</InkToolbarCustomToggleButton>
-			</InkToolbar>
+
+                <InkToolbarCustomToolButton 
+					x:Name="exportButton" 
+					Click="ExportButton_Click" 
+					ToolTipService.ToolTip="Export">
+                    <SymbolIcon Symbol="{x:Bind ExportIcon}"/>
+                </InkToolbarCustomToolButton>
+
+                <InkToolbarCustomToolButton 
+					x:Name="saveButton" 
+					Click="SaveButton_Click" 
+					ToolTipService.ToolTip="Save Project">
+                    <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
+                </InkToolbarCustomToolButton>
+            </InkToolbar>
 
 
 

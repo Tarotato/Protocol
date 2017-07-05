@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
-using Windows.UI.Xaml;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.UI;
 
 namespace Protocol
 {
@@ -142,5 +144,35 @@ namespace Protocol
 
 			_isErasing = false;
 		}
+
+        public async void SaveAsImage(double width, double height)
+        {
+            // Set up and launch the Save Picker
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
+            fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+
+            if (await fileSavePicker.PickSaveFileAsync() != null)
+            {
+                // At this point, the app can begin writing to the provided save file
+                CanvasDevice device = CanvasDevice.GetSharedDevice();
+                CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
+
+                using (var ds = renderTarget.CreateDrawingSession())
+                {
+                    ds.Clear(Colors.White);
+                    foreach (var item in _strokes)
+                    {
+                        ds.DrawInk(item.GetStrokes());
+                    }
+                }
+
+                using (var fileStream = await (await fileSavePicker.PickSaveFileAsync()).OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                }
+
+            }
+        }
 	}
 }
