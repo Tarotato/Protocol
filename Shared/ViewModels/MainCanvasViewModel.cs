@@ -128,15 +128,6 @@ namespace Protocol
 			_isErasing = true;
 		}
 
-		private void UnprocessedInput_PointerPressed(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			_lastPoint = args.CurrentPoint.Position;
-
-			args.Handled = true;
-
-			_isErasing = true;
-		}
-
 		private void UnprocessedInput_PointerReleased(InkUnprocessedInput sender, PointerEventArgs args)
 		{
 			if (_isErasing)

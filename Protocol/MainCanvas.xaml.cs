@@ -145,7 +145,7 @@ namespace Protocol
 
 		private void AddShapeToolButton_Click(object sender, RoutedEventArgs e)
 		{
-
+			// TODO 
 		}
 
 		private void ToggleTouch_Click(object sender, RoutedEventArgs e)
