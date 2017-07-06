@@ -1,10 +1,12 @@
 ﻿using Microsoft.Graphics.Canvas.UI.Xaml;
+using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Navigation;
 
 namespace Protocol
 {
@@ -26,15 +28,17 @@ namespace Protocol
 		{
 			this.InitializeComponent();
 			inkToolbar.Loading += InkToolbar_Loading;
-
-			Loaded += MainCanvas_Loaded;			
-
-			viewModel = new MainCanvasViewModel();
-			viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
+			Loaded += MainCanvas_Loaded;						
 		}
 
-		// Code for erasing dry ink from https://blogs.msdn.microsoft.com/synergist/2016/08/26/using-the-inktoolbar-with-custom-dry-ink-in-windows-anniversary-edition/
-		private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            viewModel = new MainCanvasViewModel(e.Parameter as List<InkStrokeContainer>);
+            viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
+        }
+
+        // Code for erasing dry ink from https://blogs.msdn.microsoft.com/synergist/2016/08/26/using-the-inktoolbar-with-custom-dry-ink-in-windows-anniversary-edition/
+        private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
 		{
 			var inkPresenter = inkCanvas.InkPresenter;
 
@@ -159,7 +163,7 @@ namespace Protocol
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-
+            viewModel.SaveProject();
         }
 
     }
