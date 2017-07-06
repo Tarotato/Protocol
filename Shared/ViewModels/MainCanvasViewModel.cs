@@ -58,9 +58,14 @@ namespace Protocol
 			}
 		}
 
+		internal void StartErasing(Point point)
+		{
+			_lastPoint = point;
+			_isErasing = true;
+		}
+
 		internal void AddListeners(InkUnprocessedInput unprocessedInput)
 		{
-			unprocessedInput.PointerPressed += UnprocessedInput_PointerPressed;
 			unprocessedInput.PointerMoved += UnprocessedInput_PointerMoved;
 			unprocessedInput.PointerReleased += UnprocessedInput_PointerReleased;
 			unprocessedInput.PointerExited += UnprocessedInput_PointerExited;
@@ -69,7 +74,6 @@ namespace Protocol
 
 		internal void RemoveListeners(InkUnprocessedInput unprocessedInput)
 		{
-			unprocessedInput.PointerPressed -= UnprocessedInput_PointerPressed;
 			unprocessedInput.PointerMoved -= UnprocessedInput_PointerMoved;
 			unprocessedInput.PointerReleased -= UnprocessedInput_PointerReleased;
 			unprocessedInput.PointerExited -= UnprocessedInput_PointerExited;
@@ -129,15 +133,6 @@ namespace Protocol
 			{
 				args.Handled = true;
 			}
-
-			_isErasing = true;
-		}
-
-		private void UnprocessedInput_PointerPressed(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			_lastPoint = args.CurrentPoint.Position;
-
-			args.Handled = true;
 
 			_isErasing = true;
 		}
