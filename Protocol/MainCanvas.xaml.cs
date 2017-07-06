@@ -48,16 +48,14 @@ namespace Protocol
 			_inkSynchronizer = inkPresenter.ActivateCustomDrying();
 			inkPresenter.StrokesCollected += InkPresenter_StrokesCollected;
 
+			// Handle whether input is pen eraser
+			inkPresenter.UnprocessedInput.PointerPressed += UnprocessedInput_PointerPressed;
 
-			// Handle checked and unchecked events for eraser (for erasing dry ink)
 			var eraser = inkToolbar.GetToolButton(InkToolbarTool.Eraser) as InkToolbarEraserButton;
-
-			if (eraser != null)
-			{
-				eraser.Checked += Eraser_Checked;
-				eraser.Unchecked += Eraser_Unchecked;
-			}
-
+			SetUpEraseAll(eraser);
+		}
+		
+		private void SetUpEraseAll(InkToolbarEraserButton eraser) {
 			// Handle erase all strokes
 			var flyout = FlyoutBase.GetAttachedFlyout(eraser) as Flyout;
 
@@ -94,18 +92,18 @@ namespace Protocol
 			viewModel.DrawInk(args.DrawingSession);
 		}
 
-		private void Eraser_Checked(object sender, RoutedEventArgs e)
+		private void UnprocessedInput_PointerPressed(InkUnprocessedInput sender, PointerEventArgs args)
 		{
-			var unprocessedInput = inkCanvas.InkPresenter.UnprocessedInput;
-			viewModel.AddListeners(unprocessedInput);
-			inkCanvas.InkPresenter.InputProcessingConfiguration.Mode = InkInputProcessingMode.None;
-		}
-
-		private void Eraser_Unchecked(object sender, RoutedEventArgs e)
-		{
-			var unprocessedInput = inkCanvas.InkPresenter.UnprocessedInput;
-			viewModel.RemoveListeners(unprocessedInput);
-			inkCanvas.InkPresenter.InputProcessingConfiguration.Mode = InkInputProcessingMode.Inking;
+			if (args.CurrentPoint.Properties.IsEraser || inkToolbar.GetToolButton(InkToolbarTool.Eraser).IsChecked.Value)
+			{
+				viewModel.AddListeners(inkCanvas.InkPresenter.UnprocessedInput);
+				viewModel.StartErasing(args.CurrentPoint.Position);
+			}
+			else
+			{
+				viewModel.RemoveListeners(inkCanvas.InkPresenter.UnprocessedInput);
+			}
+			args.Handled = true;
 		}
 
 		private void EraseAllInk(object sender, RoutedEventArgs e)
@@ -137,7 +135,7 @@ namespace Protocol
 
 		private void AddShapeToolButton_Click(object sender, RoutedEventArgs e)
 		{
-
+			// TODO 
 		}
 
 		private void ToggleTouch_Click(object sender, RoutedEventArgs e)
