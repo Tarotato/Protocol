@@ -10,24 +10,55 @@
 	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 		
 		<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-			<TextBlock HorizontalAlignment="Center" FontSize="48" Margin="12">Welcome to Protocol</TextBlock>
+			<TextBlock x:Name="Title" HorizontalAlignment="Center" FontSize="48" Margin="32">Welcome to Protocol</TextBlock>
 
-			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+			<!--Initial buttons-->
+			<StackPanel x:Name="ProjectButtons" Orientation="Horizontal" HorizontalAlignment="Center">
 				<Button x:Name="NewProject" Click="OnNewProjectClick" Margin="12" Width="160">
 					<StackPanel>
-						<Image Source="Assets/glyphicons-433-plus.png" Height="32" Margin="22"/>
+						<TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE710;" FontSize="30" Margin="22" />
 						<TextBlock Text="New Project" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
 					</StackPanel>
 				</Button>
 
 				<Button x:Name="OpenProject" Click="OnOpenProjectClick" Margin="12" Width="160">
 					<StackPanel>
-						<Image Source="Assets/glyphicons-145-folder-open.png" Height="32" Margin="22"/>
+						<TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE8DA;" FontSize="30" Margin="22" />
 						<TextBlock Text="Open Project" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
 					</StackPanel>
 				</Button>
 			</StackPanel>
 			
+			<!--Canvas size options, shown when new project is selected-->
+			<StackPanel x:Name="CanvasSizeButtons" Visibility="Collapsed"  Orientation="Horizontal" HorizontalAlignment="Center">
+				<Button Click="OnBackClick" Margin="12" Width="160">
+					<StackPanel>
+						<TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE830;" FontSize="30" Margin="22" />
+						<TextBlock Text="Back to Main" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
+					</StackPanel>
+				</Button>
+
+				<Button x:Name="Mobile" Click="OnMobileSizeClick" Margin="12" Width="160">
+					<StackPanel>
+						<TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE8EA;" FontSize="30" Margin="22" />
+						<TextBlock Text="Mobile" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
+					</StackPanel>
+				</Button>
+
+				<Button x:Name="Desktop" Click="OnDesktopSizeClick" Margin="12" Width="160">
+					<StackPanel>
+						<TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE7F8;" FontSize="30" Margin="22" />
+						<TextBlock Text="Desktop" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
+					</StackPanel>
+				</Button>
+				
+				<Button x:Name="Hub" Click="OnHubSizeClick" Margin="12" Width="160">
+					<StackPanel>
+						<TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE7FB;" FontSize="30" Margin="22" />
+						<TextBlock Text="Hub" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
+					</StackPanel>
+				</Button>
+			</StackPanel>
 		</StackPanel>
 		
 	</Grid>

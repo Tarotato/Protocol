@@ -27,12 +27,36 @@ namespace Protocol
 
 		private void OnNewProjectClick(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(MainCanvas));
+			ProjectButtons.Visibility = Visibility.Collapsed;
+			CanvasSizeButtons.Visibility = Visibility.Visible;
+			Title.Text = "Select Desired Platform of Prototype";
 		}
 
 		private void OnOpenProjectClick(object sender, RoutedEventArgs e)
 		{
 			// implement later
+		}
+
+		private void OnBackClick(object sender, RoutedEventArgs e)
+		{
+			ProjectButtons.Visibility = Visibility.Visible;
+			CanvasSizeButtons.Visibility = Visibility.Collapsed;
+			Title.Text = "Welcome to Protocol";
+		}
+
+		private void OnMobileSizeClick(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void OnDesktopSizeClick(object sender, RoutedEventArgs e)
+		{
+
+		}
+
+		private void OnHubSizeClick(object sender, RoutedEventArgs e)
+		{
+			this.Frame.Navigate(typeof(MainCanvas));
 		}
 	}
 }
