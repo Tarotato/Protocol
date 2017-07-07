@@ -6,6 +6,7 @@ using Windows.Storage.Streams;
 using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Shared.ViewModels;
 
 namespace Protocol
 {
@@ -15,6 +16,8 @@ namespace Protocol
     public sealed partial class StartPage : Page
     {
         private List<InkStrokeContainer> strokes;
+        private DialogFactory dialogFactory = new DialogFactory();
+
         public StartPage()
         {
             strokes = new List<InkStrokeContainer>();
@@ -23,7 +26,7 @@ namespace Protocol
 
         private void OnNewProjectClick(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainCanvas), strokes);
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null));
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
@@ -31,6 +34,7 @@ namespace Protocol
             //Let the user pick a project folder to open
             FolderPicker folderPicker = new FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
+            bool gifFound = false;
 
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
@@ -38,8 +42,9 @@ namespace Protocol
                 IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
                 foreach (var f in files)
                 {
-                    if (f != null)
+                    if (f != null && f.FileType.Equals(".gif"))
                     {
+                        gifFound = true;
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
                         // Read from file.
@@ -51,14 +56,19 @@ namespace Protocol
                             strokes.Add(container);
                         }
                         stream.Dispose();
-                        this.Frame.Navigate(typeof(MainCanvas), strokes);
-                    }
-                    // User selects Cancel and picker returns null.
-                    else
-                    {
-                        // Operation cancelled.
                     }
                 }
+                if (gifFound)
+                {
+                    this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
+                }
+                else
+                {
+                    dialogFactory.ConfirmDialogAsync("Project files can not be found. Please try again.");
+                }
+            }
+            else
+            {
             }
         }
     }

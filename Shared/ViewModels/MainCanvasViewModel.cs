@@ -21,11 +21,13 @@ namespace Protocol
 		private bool _isErasing;
 		private Point _lastPoint;
 		private List<InkStrokeContainer> _strokes;
-        private DialogFactory dialogFactory = new DialogFactory();
+        private StorageFolder _storageFolder;
+        private DialogFactory _dialogFactory = new DialogFactory();
 
-        public MainCanvasViewModel(List<InkStrokeContainer> strokes)
+        public MainCanvasViewModel(MainCanvasParams parameters)
         {
-            _strokes = strokes;
+            _strokes = parameters.strokes;
+            _storageFolder = parameters.folder; 
         }
 
 		internal void AddStroke(InkStrokeContainer container)
@@ -147,46 +149,74 @@ namespace Protocol
 
         public async void SaveAsImage(double width, double height)
         {
-            // Set up and launch the Save Picker
-            FileSavePicker fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
-            fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+            bool confirmSave = await _dialogFactory.BooleanDialogAsync("Export File as an Image or PDF?");
 
-            StorageFile file = await fileSavePicker.PickSaveFileAsync();
-            if (file != null)
+            if (confirmSave)
             {
-                // At this point, the app can begin writing to the provided save file
-                CanvasDevice device = CanvasDevice.GetSharedDevice();
-                CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
+                // Set up and launch the Save Picker
+                FileSavePicker fileSavePicker = new FileSavePicker();
+                fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
+                fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
 
-                using (var ds = renderTarget.CreateDrawingSession())
+                StorageFile file = await fileSavePicker.PickSaveFileAsync();
+                if (file != null)
                 {
-                    ds.Clear(Colors.White);
-                    foreach (var item in _strokes)
+                    // At this point, the app can begin writing to the provided save file
+                    CanvasDevice device = CanvasDevice.GetSharedDevice();
+                    CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
+
+                    using (var ds = renderTarget.CreateDrawingSession())
                     {
-                        ds.DrawInk(item.GetStrokes());
+                        ds.Clear(Colors.White);
+                        foreach (var item in _strokes)
+                        {
+                            ds.DrawInk(item.GetStrokes());
+                        }
                     }
-                }
 
-                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-                {
-                    await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
-                }
+                    using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                    {
+                        await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                    }
 
-            }
+                }
+            }            
         }
 
         public async void SaveProject()
-        {            
-            string projectName = await dialogFactory.InputTextDialogAsync("Choose a Project Name");
+        {
+            string successfullySavedText = "Project Successfully Saved";
+            //Use existing folder
+            if (_storageFolder != null)
+            {
+                SaveStrokes(_storageFolder);
+                _dialogFactory.ConfirmDialogAsync(successfullySavedText);
+                return;
+            }
+
+            //Create new fodler to save files
+            string projectName = await _dialogFactory.InputTextDialogAsync("Choose a Project Name");
             if (projectName != null)
             {
-                StorageFolder storageFolder = await dialogFactory.ChooseFolderDialogAsync(projectName);
+                if (!IsValidName(projectName))
+                {
+                    _dialogFactory.ConfirmDialogAsync("Please Enter a Valid Name");
+                    SaveProject();
+                }
+
+                StorageFolder storageFolder = await _dialogFactory.ChooseFolderDialogAsync(projectName);
                 if(storageFolder != null)
                 {
                     SaveStrokes(storageFolder);
+                    _dialogFactory.ConfirmDialogAsync(successfullySavedText);
                 }
             }
+        }
+
+        private bool IsValidName(string name)
+        {
+            // TODO: Input Checking
+            return true;
         }
         
 

@@ -8,6 +8,9 @@ namespace Shared.ViewModels
 {
     public class DialogFactory
     {
+        private static string confirmText = "Ok";
+        private static string denyText = "Cancel";
+        private static string saveCancelledText = "Save Cancelled";
 
         public async Task<string> InputTextDialogAsync(string title)
         {
@@ -18,8 +21,8 @@ namespace Shared.ViewModels
             dialog.Content = inputTextBox;
             dialog.Title = title;
             dialog.IsSecondaryButtonEnabled = true;
-            dialog.PrimaryButtonText = "Ok";
-            dialog.SecondaryButtonText = "Cancel";
+            dialog.PrimaryButtonText = confirmText;
+            dialog.SecondaryButtonText = denyText;
             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             {
                 return inputTextBox.Text;
@@ -27,7 +30,6 @@ namespace Shared.ViewModels
             else
             {
                 //Operation cancelled
-                OperationCancelledDialogAsync("Save Cancelled");
                 return null;
             }
 
@@ -39,7 +41,7 @@ namespace Shared.ViewModels
             dialog.Title = "Choose a Folder";
             dialog.IsSecondaryButtonEnabled = true;
             dialog.PrimaryButtonText = "Choose Folder";
-            dialog.SecondaryButtonText = "Cancel";
+            dialog.SecondaryButtonText = denyText;
             dialog.Height = 50;
             if (await dialog.ShowAsync() == ContentDialogResult.Primary)
             {
@@ -48,9 +50,7 @@ namespace Shared.ViewModels
             else
             {
                 //Operation cancelled
-                OperationCancelledDialogAsync("Save Cancelled");
                 return null;
-
             }
         }
 
@@ -71,19 +71,32 @@ namespace Shared.ViewModels
             else
             {
                 //Operation cancelled
-                OperationCancelledDialogAsync("Save Cancelled");
+                ConfirmDialogAsync(saveCancelledText);
                 return null;
             }
         }
 
-        private async void OperationCancelledDialogAsync(string title)
+        public async void ConfirmDialogAsync(string title)
         {
             ContentDialog dialog = new ContentDialog();
             dialog.Title = title;
             dialog.Height = 50;
-            dialog.PrimaryButtonText = "Ok";
+            dialog.PrimaryButtonText = confirmText;
             await dialog.ShowAsync();
+        }
 
+        public async Task<bool> BooleanDialogAsync(string title)
+        {
+            ContentDialog dialog = new ContentDialog();
+            dialog.Title = title;
+            dialog.IsSecondaryButtonEnabled = true;
+            dialog.PrimaryButtonText = confirmText;
+            dialog.SecondaryButtonText = denyText;
+            dialog.Height = 50;
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+                return true;
+            else
+                return false;
         }
     }
 }

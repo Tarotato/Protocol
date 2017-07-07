@@ -7,6 +7,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
+using Shared.ViewModels;
 
 namespace Protocol
 {
@@ -33,7 +34,7 @@ namespace Protocol
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            viewModel = new MainCanvasViewModel(e.Parameter as List<InkStrokeContainer>);
+            viewModel = new MainCanvasViewModel(e.Parameter as MainCanvasParams);
             viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
         }
 
