@@ -13,6 +13,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)Views\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DialogFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasViewModel.cs" />
   </ItemGroup>
 </Project>

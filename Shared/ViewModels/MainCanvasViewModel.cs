@@ -1,9 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
@@ -11,7 +8,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.Storage.Streams;
-using Windows.UI.Xaml.Controls;
+using Shared.ViewModels;
 
 namespace Protocol
 {
@@ -24,6 +21,7 @@ namespace Protocol
 		private bool _isErasing;
 		private Point _lastPoint;
 		private List<InkStrokeContainer> _strokes;
+        private DialogFactory dialogFactory = new DialogFactory();
 
         public MainCanvasViewModel(List<InkStrokeContainer> strokes)
         {
@@ -180,61 +178,17 @@ namespace Protocol
 
         public async void SaveProject()
         {            
-            string projectName = await InputTextDialogAsync("Choose a Project Name");
-            ChooseFolderDialog(projectName);
-        }
-
-        private async void ChooseFolderDialog(string projectName)
-        {      
-            TextBox inputTextBox = new TextBox();
-            inputTextBox.AcceptsReturn = false;
-            inputTextBox.Height = 32;
-            ContentDialog dialog = new ContentDialog();
-            dialog.Title = "Choose a Folder";
-            dialog.IsSecondaryButtonEnabled = true;
-            dialog.PrimaryButtonText = "Choose Folder";
-            dialog.SecondaryButtonText = "Cancel";
-            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            string projectName = await dialogFactory.InputTextDialogAsync("Choose a Project Name");
+            if (projectName != null)
             {
-                PickFolder(projectName);
-            }  
-        }
-
-        private async void PickFolder(string projectName)
-        {
-            //Let the user pick a folder
-            FolderPicker folderPicker = new FolderPicker();
-            folderPicker.FileTypeFilter.Add("*");
-
-            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
-            {
-                // Application now has read/write access to all contents in the picked folder(including other sub-folder contents)
-                StorageFolder storageFolder = await folder.CreateFolderAsync(projectName, CreationCollisionOption.ReplaceExisting);
-                SaveStrokes(storageFolder);
-            }
-            else
-            {
-                //"Operation cancelled."
+                StorageFolder storageFolder = await dialogFactory.ChooseFolderDialogAsync(projectName);
+                if(storageFolder != null)
+                {
+                    SaveStrokes(storageFolder);
+                }
             }
         }
-
-        private async Task<string> InputTextDialogAsync(string title)
-        {
-            TextBox inputTextBox = new TextBox();
-            inputTextBox.AcceptsReturn = false;
-            inputTextBox.Height = 32;
-            ContentDialog dialog = new ContentDialog();
-            dialog.Content = inputTextBox;
-            dialog.Title = title;
-            dialog.IsSecondaryButtonEnabled = true;
-            dialog.PrimaryButtonText = "Ok";
-            dialog.SecondaryButtonText = "Cancel";
-            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
-                return inputTextBox.Text;
-            else
-                return "";
-        }
+        
 
         private async void SaveStrokes(StorageFolder storageFolder)
         {
