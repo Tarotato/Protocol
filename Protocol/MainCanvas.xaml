@@ -8,51 +8,60 @@
 	xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
 	mc:Ignorable="d">
 
-	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="*"/>
-		</Grid.RowDefinitions>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-		<Grid Grid.Row="1">
-			<canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas" />
-			<InkCanvas x:Name="inkCanvas" />
+        <Grid Grid.Row="1">
+            <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas" />
+            <InkCanvas x:Name="inkCanvas" />
 
-			<InkToolbar x:Name="inkToolbar"
+            <InkToolbar x:Name="inkToolbar"
 				VerticalAlignment="Bottom"
 				TargetInkCanvas="{x:Bind inkCanvas}" 
 				HorizontalAlignment="Center">
 
-				<InkToolbarCustomToolButton 
+                <InkToolbarCustomToolButton 
 					x:Name="addShapeToolButton" 
 					Click="AddShapeToolButton_Click" 
 					ToolTipService.ToolTip="Add Shape Tool">
                     <SymbolIcon Symbol="{x:Bind ShapeIcon}"/>
                 </InkToolbarCustomToolButton>
-				
-				<InkToolbarCustomToggleButton 
+
+                <InkToolbarCustomToggleButton 
                     x:Name="toggleTouchButton" 
                     Click="ToggleTouch_Click" 
                     ToolTipService.ToolTip="Toggle Touch">
-					<SymbolIcon Symbol="{x:Bind TouchWritingIcon}"/>
-				</InkToolbarCustomToggleButton>
-
-                <InkToolbarCustomToolButton 
-					x:Name="exportButton" 
-					Click="ExportButton_Click" 
-					ToolTipService.ToolTip="Export">
-                    <SymbolIcon Symbol="{x:Bind ExportIcon}"/>
-                </InkToolbarCustomToolButton>
-
-                <InkToolbarCustomToolButton 
-					x:Name="saveButton" 
-					Click="SaveButton_Click" 
-					ToolTipService.ToolTip="Save Project">
-                    <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
-                </InkToolbarCustomToolButton>
+                    <SymbolIcon Symbol="{x:Bind TouchWritingIcon}"/>
+                </InkToolbarCustomToggleButton>
             </InkToolbar>
-
-
-
-		</Grid>
-	</Grid>
+            
+            <StackPanel
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Right"
+                Orientation="Horizontal">
+                
+                <Button
+                    x:Name="exportButton" 
+				    Click="ExportButton_Click" 
+                    MinHeight="49"
+                    MinWidth="49"
+                    Background="WhiteSmoke"
+				    ToolTipService.ToolTip="Export">
+                    <SymbolIcon Symbol="{x:Bind ExportIcon}"/>
+                </Button>
+                
+                <Button
+                   x:Name="saveButton" 
+				    Click="SaveButton_Click"
+                    MinHeight="49"
+                    MinWidth="49"                    
+                    Background="WhiteSmoke"
+				    ToolTipService.ToolTip="Save Project">
+                    <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
+                </Button>
+            </StackPanel>                
+        </Grid>
+    </Grid>
 </Page>
