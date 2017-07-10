@@ -149,14 +149,14 @@ namespace Protocol
 
         public async void SaveAsImage(double width, double height)
         {
-            bool confirmSave = await _dialogFactory.BooleanDialogAsync("Export File as an Image or PDF?");
+            bool confirmSave = await _dialogFactory.BooleanDialogAsync("Export File as an Image?");
 
             if (confirmSave)
             {
                 // Set up and launch the Save Picker
                 FileSavePicker fileSavePicker = new FileSavePicker();
-                fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
                 fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+                fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
 
                 StorageFile file = await fileSavePicker.PickSaveFileAsync();
                 if (file != null)
@@ -176,7 +176,14 @@ namespace Protocol
 
                     using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
                     {
-                        await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                        if (file.FileType.Equals(".jpeg"))
+                        {
+                            await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                        }
+                        else
+                        {
+                            await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
+                        }
                     }
 
                 }
@@ -209,6 +216,7 @@ namespace Protocol
                 {
                     SaveStrokes(storageFolder);
                     _dialogFactory.ConfirmDialogAsync(successfullySavedText);
+                    _storageFolder = storageFolder;
                 }
             }
         }
@@ -222,6 +230,19 @@ namespace Protocol
 
         private async void SaveStrokes(StorageFolder storageFolder)
         {
+            // Remove existing files from storageFolder
+            if (storageFolder != null)
+            {
+                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+                foreach (var f in files)
+                {
+                    if (f.FileType.Equals(".gif") && f.DisplayName.StartsWith("InkStroke"))
+                    {
+                        await f.DeleteAsync();
+                    }
+                }
+            }
+
             // Get all strokes on the InkCanvas.
             IReadOnlyList<InkStroke> currentStrokes;
             int i = 0;
