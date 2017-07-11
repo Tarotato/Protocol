@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
@@ -8,6 +9,10 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
 using Shared.ViewModels;
+using Shared.Views;
+using Windows.Storage.Pickers;
+using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace Protocol
 {
@@ -24,6 +29,8 @@ namespace Protocol
         Symbol TouchWritingIcon = (Symbol)0xED5F;
         Symbol ExportIcon = (Symbol)0xE158;
         Symbol SaveIcon = (Symbol)0xE105;
+        Symbol OpenIcon = (Symbol)0xED43;
+        Symbol NewIcon = (Symbol)0xE8E5;
 
         public MainCanvas()
 		{
@@ -160,10 +167,60 @@ namespace Protocol
             viewModel.SaveAsImage(inkCanvas.ActualWidth, inkCanvas.ActualHeight);
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.SaveProject();
+            await viewModel.SaveProject();
+            FlyoutMsg("Project Saved", inkToolbar);
+        }
+        private void FlyoutMsg(string title, FrameworkElement parent)
+        {
+            TextBlock t = new TextBlock();
+            t.Text = title;
+            Flyout f = new Flyout();
+            f.Content = t;
+            f.ShowAt(parent);
         }
 
+        private async void OpenButton_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            List<InkStrokeContainer> strokes = new List<InkStrokeContainer>();
+            //Let the user pick a project folder to open
+            FolderPicker folderPicker = new FolderPicker();
+            folderPicker.FileTypeFilter.Add("*");
+
+            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
+            if (folder != null)
+            {
+                IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
+                foreach (var f in files)
+                {
+                    if (f != null && f.FileType.Equals(".gif"))
+                    {
+                        // Open a file stream for reading.
+                        IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
+                        // Read from file.
+                        using (var inputStream = stream.GetInputStreamAt(0))
+                        {
+                            var container = new InkStrokeContainer();
+                            await container.LoadAsync(inputStream);
+                            //Add the strokes stored in the files
+                            strokes.Add(container);
+                        }
+                        stream.Dispose();
+                    }
+                }
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
+            }
+        }
+
+        private async void NewButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogFactory d = new DialogFactory();
+            bool open = await d.BooleanDialogAsync("Open New Project?");
+                
+            if(open){
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null));
+            }
+        }
     }
 }

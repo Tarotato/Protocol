@@ -61,6 +61,25 @@
 				    ToolTipService.ToolTip="Save Project">
                     <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
                 </Button>
+
+                <Button
+                   x:Name="openButton" 
+				    Click="OpenButton_ClickAsync"
+                    MinHeight="49"
+                    MinWidth="49"                    
+                    Background="WhiteSmoke"
+				    ToolTipService.ToolTip="Open Project">
+                    <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
+                </Button>
+                <Button
+                   x:Name="newButton" 
+				    Click="NewButton_Click"
+                    MinHeight="49"
+                    MinWidth="49"                    
+                    Background="WhiteSmoke"
+				    ToolTipService.ToolTip="New Project">
+                    <SymbolIcon Symbol="{x:Bind NewIcon}"/>
+                </Button>
             </StackPanel>                
         </Grid>
     </Grid>

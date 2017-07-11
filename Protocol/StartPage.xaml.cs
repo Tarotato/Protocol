@@ -34,7 +34,6 @@ namespace Protocol
             //Let the user pick a project folder to open
             FolderPicker folderPicker = new FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
-            bool gifFound = false;
 
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
@@ -44,7 +43,6 @@ namespace Protocol
                 {
                     if (f != null && f.FileType.Equals(".gif"))
                     {
-                        gifFound = true;
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
                         // Read from file.
@@ -58,17 +56,7 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                if (gifFound)
-                {
-                    this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
-                }
-                else
-                {
-                    dialogFactory.ConfirmDialogAsync("Project files can not be found. Please try again.");
-                }
-            }
-            else
-            {
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
             }
         }
     }

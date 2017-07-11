@@ -9,6 +9,8 @@ using Windows.Storage.Pickers;
 using Windows.UI;
 using Windows.Storage.Streams;
 using Shared.ViewModels;
+using Shared.Views;
+using System.Threading.Tasks;
 
 namespace Protocol
 {
@@ -190,43 +192,29 @@ namespace Protocol
             }            
         }
 
-        public async void SaveProject()
+        public async Task<bool> SaveProject()
         {
-            string successfullySavedText = "Project Successfully Saved";
             //Use existing folder
             if (_storageFolder != null)
             {
                 SaveStrokes(_storageFolder);
-                _dialogFactory.ConfirmDialogAsync(successfullySavedText);
-                return;
+                return true;
             }
 
-            //Create new fodler to save files
-            string projectName = await _dialogFactory.InputTextDialogAsync("Choose a Project Name");
-            if (projectName != null)
-            {
-                if (!IsValidName(projectName))
-                {
-                    _dialogFactory.ConfirmDialogAsync("Please Enter a Valid Name");
-                    SaveProject();
-                }
-
-                StorageFolder storageFolder = await _dialogFactory.ChooseFolderDialogAsync(projectName);
-                if(storageFolder != null)
-                {
-                    SaveStrokes(storageFolder);
-                    _dialogFactory.ConfirmDialogAsync(successfullySavedText);
-                    _storageFolder = storageFolder;
-                }
-            }
+            //Create new folder to save files
+            SaveDialog save = new SaveDialog();
+            await save.ShowAsync();
+            //Save
+            SaveStrokes(save.folder);
+            _storageFolder = save.folder;
+            return true;
         }
 
         private bool IsValidName(string name)
         {
             // TODO: Input Checking
             return true;
-        }
-        
+        }        
 
         private async void SaveStrokes(StorageFolder storageFolder)
         {

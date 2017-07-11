@@ -10,11 +10,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Strings\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Views\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DialogFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml.cs">
+      <DependentUpon>SaveDialog.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>
