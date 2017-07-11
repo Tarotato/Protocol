@@ -1,15 +1,14 @@
 ﻿using Microsoft.Graphics.Canvas;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI;
+using Windows.Storage.Streams;
+using Shared.ViewModels;
 
 namespace Protocol
 {
@@ -21,7 +20,15 @@ namespace Protocol
 		// fields for dry erasing
 		private bool _isErasing;
 		private Point _lastPoint;
-		private List<InkStrokeContainer> _strokes = new List<InkStrokeContainer>();
+		private List<InkStrokeContainer> _strokes;
+        private StorageFolder _storageFolder;
+        private DialogFactory _dialogFactory = new DialogFactory();
+
+        public MainCanvasViewModel(MainCanvasParams parameters)
+        {
+            _strokes = parameters.strokes;
+            _storageFolder = parameters.folder; 
+        }
 
 		internal void AddStroke(InkStrokeContainer container)
 		{
@@ -142,33 +149,148 @@ namespace Protocol
 
         public async void SaveAsImage(double width, double height)
         {
-            // Set up and launch the Save Picker
-            FileSavePicker fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
-            fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+            bool confirmSave = await _dialogFactory.BooleanDialogAsync("Export File as an Image?");
 
-            StorageFile file = await fileSavePicker.PickSaveFileAsync();
-            if (file != null)
+            if (confirmSave)
             {
-                // At this point, the app can begin writing to the provided save file
-                CanvasDevice device = CanvasDevice.GetSharedDevice();
-                CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
+                // Set up and launch the Save Picker
+                FileSavePicker fileSavePicker = new FileSavePicker();
+                fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+                fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
 
-                using (var ds = renderTarget.CreateDrawingSession())
+                StorageFile file = await fileSavePicker.PickSaveFileAsync();
+                if (file != null)
                 {
-                    ds.Clear(Colors.White);
-                    foreach (var item in _strokes)
+                    // At this point, the app can begin writing to the provided save file
+                    CanvasDevice device = CanvasDevice.GetSharedDevice();
+                    CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
+
+                    using (var ds = renderTarget.CreateDrawingSession())
                     {
-                        ds.DrawInk(item.GetStrokes());
+                        ds.Clear(Colors.White);
+                        foreach (var item in _strokes)
+                        {
+                            ds.DrawInk(item.GetStrokes());
+                        }
                     }
-                }
 
-                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                    using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                    {
+                        if (file.FileType.Equals(".jpeg"))
+                        {
+                            await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                        }
+                        else
+                        {
+                            await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
+                        }
+                    }
+
+                }
+            }            
+        }
+
+        public async void SaveProject()
+        {
+            string successfullySavedText = "Project Successfully Saved";
+            //Use existing folder
+            if (_storageFolder != null)
+            {
+                SaveStrokes(_storageFolder);
+                _dialogFactory.ConfirmDialogAsync(successfullySavedText);
+                return;
+            }
+
+            //Create new fodler to save files
+            string projectName = await _dialogFactory.InputTextDialogAsync("Choose a Project Name");
+            if (projectName != null)
+            {
+                if (!IsValidName(projectName))
                 {
-                    await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                    _dialogFactory.ConfirmDialogAsync("Please Enter a Valid Name");
+                    SaveProject();
                 }
 
+                StorageFolder storageFolder = await _dialogFactory.ChooseFolderDialogAsync(projectName);
+                if(storageFolder != null)
+                {
+                    SaveStrokes(storageFolder);
+                    _dialogFactory.ConfirmDialogAsync(successfullySavedText);
+                    _storageFolder = storageFolder;
+                }
             }
         }
-	}
+
+        private bool IsValidName(string name)
+        {
+            // TODO: Input Checking
+            return true;
+        }
+        
+
+        private async void SaveStrokes(StorageFolder storageFolder)
+        {
+            // Remove existing files from storageFolder
+            if (storageFolder != null)
+            {
+                IReadOnlyList<StorageFile> files = await storageFolder.GetFilesAsync();
+                foreach (var f in files)
+                {
+                    if (f.FileType.Equals(".gif") && f.DisplayName.StartsWith("InkStroke"))
+                    {
+                        await f.DeleteAsync();
+                    }
+                }
+            }
+
+            // Get all strokes on the InkCanvas.
+            IReadOnlyList<InkStroke> currentStrokes;
+            int i = 0;
+            foreach (var item in _strokes)
+            {
+                if (item.GetStrokes().Count > 0)
+                {
+                    // Strokes present on ink canvas.
+                    currentStrokes = item.GetStrokes();
+
+                    var file = await storageFolder.CreateFileAsync("InkStroke" + i.ToString() + ".gif", CreationCollisionOption.ReplaceExisting);
+                    // When chosen, picker returns a reference to the selected file.
+                    if (file != null)
+                    {
+                        // Prevent updates to the file until updates are finalized with call to CompleteUpdatesAsync.
+                        CachedFileManager.DeferUpdates(file);
+
+                        // Open a file stream for writing.
+                        IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+
+                        // Write the ink strokes to the output stream.
+                        using (IOutputStream outputStream = stream.GetOutputStreamAt(0))
+                        {
+                            await item.SaveAsync(outputStream);
+                            await outputStream.FlushAsync();
+                        }
+                        stream.Dispose();
+
+                        // Finalize write so other apps can update file.
+                        Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
+
+                        if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
+                        {
+                            // File saved.
+                        }
+                        else
+                        {
+                            // File couldn't be saved.
+                        }
+                    }
+                    // User selects Cancel and picker returns null.
+                    else
+                    {
+                        // Operation cancelled.
+                    }
+                    i++;
+                }
+            }
+        }
+    }
 }

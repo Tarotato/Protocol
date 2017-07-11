@@ -1,41 +1,76 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
+using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using Shared.ViewModels;
+using Shared.Models;
 
 namespace Protocol
 {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
-	public sealed partial class StartPage : Page
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
+    public sealed partial class StartPage : Page
 	{
-		public StartPage()
-		{
-			this.InitializeComponent();
-		}
+        private List<InkStrokeContainer> strokes;
+        private DialogFactory dialogFactory = new DialogFactory();
+
+        public StartPage()
+        {
+            strokes = new List<InkStrokeContainer>();
+            this.InitializeComponent();
+        }
 
 		private void OnNewProjectClick(object sender, RoutedEventArgs e)
 		{
 			ProjectButtons.Visibility = Visibility.Collapsed;
 			CanvasSizeButtons.Visibility = Visibility.Visible;
-			Title.Text = "Select Desired Platform of Prototype";
-		}
+			Title.Text = "Select Desired Platform";
+        }
 
-		private void OnOpenProjectClick(object sender, RoutedEventArgs e)
-		{
-			// implement later
-		}
+        private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
+        {
+            //Let the user pick a project folder to open
+            FolderPicker folderPicker = new FolderPicker();
+            folderPicker.FileTypeFilter.Add("*");
+            bool gifFound = false;
+
+            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
+            if (folder != null)
+            {
+                IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
+                foreach (var f in files)
+                {
+                    if (f != null && f.FileType.Equals(".gif"))
+                    {
+                        gifFound = true;
+                        // Open a file stream for reading.
+                        IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
+                        // Read from file.
+                        using (var inputStream = stream.GetInputStreamAt(0))
+                        {
+                            var container = new InkStrokeContainer();
+                            await container.LoadAsync(inputStream);
+                            //Add the strokes stored in the files
+                            strokes.Add(container);
+                        }
+                        stream.Dispose();
+                    }
+                }
+                if (gifFound)
+                {
+                    this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
+                }
+                else
+                {
+                    dialogFactory.ConfirmDialogAsync("Project files can not be found. Please try again.");
+                }
+            }
+        }
 
 		private void OnBackClick(object sender, RoutedEventArgs e)
 		{
@@ -46,17 +81,17 @@ namespace Protocol
 
 		private void OnMobileSizeClick(object sender, RoutedEventArgs e)
 		{
-
+			this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Mobile));
 		}
 
 		private void OnDesktopSizeClick(object sender, RoutedEventArgs e)
 		{
-
+			this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Desktop));
 		}
 
 		private void OnHubSizeClick(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(MainCanvas));
+			this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Hub));
 		}
 	}
 }
