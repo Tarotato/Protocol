@@ -204,10 +204,14 @@ namespace Protocol
             //Create new folder to save files
             SaveDialog save = new SaveDialog();
             await save.ShowAsync();
-            //Save
-            SaveStrokes(save.folder);
-            _storageFolder = save.folder;
-            return true;
+            if(save.folder != null)
+            {
+                //Save
+                SaveStrokes(save.folder);
+                _storageFolder = save.folder;
+                return true;
+            }
+            return false;
         }
 
         private bool IsValidName(string name)

@@ -169,9 +169,12 @@ namespace Protocol
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            await viewModel.SaveProject();
-            FlyoutMsg("Project Saved", inkToolbar);
+            if(await viewModel.SaveProject())
+            {
+                FlyoutMsg("Project Saved", inkToolbar);
+            }
         }
+
         private void FlyoutMsg(string title, FrameworkElement parent)
         {
             TextBlock t = new TextBlock();
