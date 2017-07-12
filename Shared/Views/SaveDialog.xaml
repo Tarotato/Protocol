@@ -24,7 +24,7 @@
                 <TextBox x:Name="txtDirectory" TextWrapping="Wrap" Margin="0,10,5,10" HorizontalAlignment="Stretch" Width="288"/>
                 <Button
                     x:Name="chooseDirButton" 
-			        Click="ChooseDirButton_ClickAsync"
+                    Click="ChooseDirButton_ClickAsync"
                     Background="LightGray">
                     Browse
                 </Button>
@@ -44,9 +44,9 @@
             Margin="0,0,40,0">
             <Button
                 x:Name="submitButton" 
-			    Click="SaveButton_Click"     
+                Click="SaveButton_Click"     
                 Background="RoyalBlue"
-			    ToolTipService.ToolTip="Open Project"
+                ToolTipService.ToolTip="Open Project"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Foreground="White"
@@ -56,9 +56,9 @@
             </Button>
             <Button
                 x:Name="cancelButton" 
-			    Click="CancelButton_Click"     
+                Click="CancelButton_Click"     
                 Background="WhiteSmoke"
-			    ToolTipService.ToolTip="Open Project"
+                ToolTipService.ToolTip="Open Project"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom">
                 Cancel

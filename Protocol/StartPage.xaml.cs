@@ -7,6 +7,7 @@ using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Shared.ViewModels;
+using Shared.Models;
 
 namespace Protocol
 {
@@ -25,7 +26,9 @@ namespace Protocol
 
         private void OnNewProjectClick(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null));
+            ProjectButtons.Visibility = Visibility.Collapsed;
+            CanvasSizeButtons.Visibility = Visibility.Visible;
+            Title.Text = "Select Desired Platform";
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
@@ -55,8 +58,31 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
+                // TODO size is hard coded
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
             }
+        }
+
+        private void OnBackClick(object sender, RoutedEventArgs e)
+        {
+            ProjectButtons.Visibility = Visibility.Visible;
+            CanvasSizeButtons.Visibility = Visibility.Collapsed;
+            Title.Text = "Welcome to Protocol";
+        }
+
+        private void OnMobileSizeClick(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Mobile));
+        }
+
+        private void OnDesktopSizeClick(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Desktop));
+        }
+
+        private void OnHubSizeClick(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Hub));
         }
     }
 }

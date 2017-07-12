@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 
 namespace Protocol
 {
-	public class MainCanvasViewModel
-	{
-		public delegate void ChangedEventHandler();
-		public event ChangedEventHandler DrawCanvasInvalidated;
+    public class MainCanvasViewModel
+    {
+        public delegate void ChangedEventHandler();
+        public event ChangedEventHandler DrawCanvasInvalidated;
 
-		// fields for dry erasing
-		private bool _isErasing;
-		private Point _lastPoint;
-		private List<InkStrokeContainer> _strokes;
+        // fields for dry erasing
+        private bool _isErasing;
+        private Point _lastPoint;
+        private List<InkStrokeContainer> _strokes;
         private StorageFolder _storageFolder;
 
         public MainCanvasViewModel(MainCanvasParams parameters)
@@ -31,122 +31,122 @@ namespace Protocol
             _storageFolder = parameters.folder; 
         }
 
-		internal void AddStroke(InkStrokeContainer container)
-		{
-			_strokes.Add(container);
-		}
+        internal void AddStroke(InkStrokeContainer container)
+        {
+            _strokes.Add(container);
+        }
 
-		internal void ClearStokes()
-		{
-			_strokes.Clear();
-		}
+        internal void ClearStokes()
+        {
+            _strokes.Clear();
+        }
 
-		internal void DrawInk(CanvasDrawingSession session)
-		{
-			foreach (var item in _strokes)
-			{
-				var strokes = item.GetStrokes();
+        internal void DrawInk(CanvasDrawingSession session)
+        {
+            foreach (var item in _strokes)
+            {
+                var strokes = item.GetStrokes();
 
-				using (var list = new CanvasCommandList(session))
-				{
-					using (var listSession = list.CreateDrawingSession())
-					{
-						listSession.DrawInk(strokes);
-					}
-				}
+                using (var list = new CanvasCommandList(session))
+                {
+                    using (var listSession = list.CreateDrawingSession())
+                    {
+                        listSession.DrawInk(strokes);
+                    }
+                }
 
-				session.DrawInk(strokes);
-			}
-		}
+                session.DrawInk(strokes);
+            }
+        }
 
-		internal void StartErasing(Point point)
-		{
-			_lastPoint = point;
-			_isErasing = true;
-		}
+        internal void StartErasing(Point point)
+        {
+            _lastPoint = point;
+            _isErasing = true;
+        }
 
-		internal void AddListeners(InkUnprocessedInput unprocessedInput)
-		{
-			unprocessedInput.PointerMoved += UnprocessedInput_PointerMoved;
-			unprocessedInput.PointerReleased += UnprocessedInput_PointerReleased;
-			unprocessedInput.PointerExited += UnprocessedInput_PointerExited;
-			unprocessedInput.PointerLost += UnprocessedInput_PointerLost;
-		}
+        internal void AddListeners(InkUnprocessedInput unprocessedInput)
+        {
+            unprocessedInput.PointerMoved += UnprocessedInput_PointerMoved;
+            unprocessedInput.PointerReleased += UnprocessedInput_PointerReleased;
+            unprocessedInput.PointerExited += UnprocessedInput_PointerExited;
+            unprocessedInput.PointerLost += UnprocessedInput_PointerLost;
+        }
 
-		internal void RemoveListeners(InkUnprocessedInput unprocessedInput)
-		{
-			unprocessedInput.PointerMoved -= UnprocessedInput_PointerMoved;
-			unprocessedInput.PointerReleased -= UnprocessedInput_PointerReleased;
-			unprocessedInput.PointerExited -= UnprocessedInput_PointerExited;
-			unprocessedInput.PointerLost -= UnprocessedInput_PointerLost;
-		}
+        internal void RemoveListeners(InkUnprocessedInput unprocessedInput)
+        {
+            unprocessedInput.PointerMoved -= UnprocessedInput_PointerMoved;
+            unprocessedInput.PointerReleased -= UnprocessedInput_PointerReleased;
+            unprocessedInput.PointerExited -= UnprocessedInput_PointerExited;
+            unprocessedInput.PointerLost -= UnprocessedInput_PointerLost;
+        }
 
-		private void UnprocessedInput_PointerMoved(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (!_isErasing)
-			{
-				return;
-			}
+        private void UnprocessedInput_PointerMoved(InkUnprocessedInput sender, PointerEventArgs args)
+        {
+            if (!_isErasing)
+            {
+                return;
+            }
 
-			var invalidate = false;
+            var invalidate = false;
 
-			foreach (var item in _strokes.ToArray())
-			{
-				var rect = item.SelectWithLine(_lastPoint, args.CurrentPoint.Position);
+            foreach (var item in _strokes.ToArray())
+            {
+                var rect = item.SelectWithLine(_lastPoint, args.CurrentPoint.Position);
 
-				if (rect.IsEmpty)
-				{
-					continue;
-				}
+                if (rect.IsEmpty)
+                {
+                    continue;
+                }
 
-				if (rect.Width * rect.Height > 0)
-				{
-					_strokes.Remove(item);
+                if (rect.Width * rect.Height > 0)
+                {
+                    _strokes.Remove(item);
 
-					invalidate = true;
-				}
-			}
+                    invalidate = true;
+                }
+            }
 
-			_lastPoint = args.CurrentPoint.Position;
+            _lastPoint = args.CurrentPoint.Position;
 
-			args.Handled = true;
+            args.Handled = true;
 
-			if (invalidate)
-			{
-				if (DrawCanvasInvalidated != null)
-					DrawCanvasInvalidated();
-			}
-		}
+            if (invalidate)
+            {
+                if (DrawCanvasInvalidated != null)
+                    DrawCanvasInvalidated();
+            }
+        }
 
-		private void UnprocessedInput_PointerLost(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (_isErasing)
-			{
-				args.Handled = true;
-			}
+        private void UnprocessedInput_PointerLost(InkUnprocessedInput sender, PointerEventArgs args)
+        {
+            if (_isErasing)
+            {
+                args.Handled = true;
+            }
 
-			_isErasing = false;
-		}
+            _isErasing = false;
+        }
 
-		private void UnprocessedInput_PointerExited(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (_isErasing)
-			{
-				args.Handled = true;
-			}
+        private void UnprocessedInput_PointerExited(InkUnprocessedInput sender, PointerEventArgs args)
+        {
+            if (_isErasing)
+            {
+                args.Handled = true;
+            }
 
-			_isErasing = true;
-		}
+            _isErasing = true;
+        }
 
-		private void UnprocessedInput_PointerReleased(InkUnprocessedInput sender, PointerEventArgs args)
-		{
-			if (_isErasing)
-			{
-				args.Handled = true;
-			}
+        private void UnprocessedInput_PointerReleased(InkUnprocessedInput sender, PointerEventArgs args)
+        {
+            if (_isErasing)
+            {
+                args.Handled = true;
+            }
 
-			_isErasing = false;
-		}
+            _isErasing = false;
+        }
 
         public async void SaveAsImage(double width, double height)
         {
