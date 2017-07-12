@@ -15,7 +15,7 @@ namespace Protocol
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class StartPage : Page
-	{
+    {
         private List<InkStrokeContainer> strokes;
         private DialogFactory dialogFactory = new DialogFactory();
 
@@ -25,11 +25,11 @@ namespace Protocol
             this.InitializeComponent();
         }
 
-		private void OnNewProjectClick(object sender, RoutedEventArgs e)
-		{
-			ProjectButtons.Visibility = Visibility.Collapsed;
-			CanvasSizeButtons.Visibility = Visibility.Visible;
-			Title.Text = "Select Desired Platform";
+        private void OnNewProjectClick(object sender, RoutedEventArgs e)
+        {
+            ProjectButtons.Visibility = Visibility.Collapsed;
+            CanvasSizeButtons.Visibility = Visibility.Visible;
+            Title.Text = "Select Desired Platform";
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
@@ -37,7 +37,6 @@ namespace Protocol
             //Let the user pick a project folder to open
             FolderPicker folderPicker = new FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
-            bool gifFound = false;
 
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
@@ -47,7 +46,6 @@ namespace Protocol
                 {
                     if (f != null && f.FileType.Equals(".gif"))
                     {
-                        gifFound = true;
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
                         // Read from file.
@@ -61,37 +59,30 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                if (gifFound)
-                {
-                    this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
-                }
-                else
-                {
-                    dialogFactory.ConfirmDialogAsync("Project files can not be found. Please try again.");
-                }
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
             }
         }
 
-		private void OnBackClick(object sender, RoutedEventArgs e)
-		{
-			ProjectButtons.Visibility = Visibility.Visible;
-			CanvasSizeButtons.Visibility = Visibility.Collapsed;
-			Title.Text = "Welcome to Protocol";
-		}
+        private void OnBackClick(object sender, RoutedEventArgs e)
+        {
+            ProjectButtons.Visibility = Visibility.Visible;
+            CanvasSizeButtons.Visibility = Visibility.Collapsed;
+            Title.Text = "Welcome to Protocol";
+        }
 
-		private void OnMobileSizeClick(object sender, RoutedEventArgs e)
-		{
-			this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Mobile));
-		}
+        private void OnMobileSizeClick(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Mobile));
+        }
 
-		private void OnDesktopSizeClick(object sender, RoutedEventArgs e)
-		{
-			this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Desktop));
-		}
+        private void OnDesktopSizeClick(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Desktop));
+        }
 
-		private void OnHubSizeClick(object sender, RoutedEventArgs e)
-		{
-			this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Hub));
-		}
-	}
+        private void OnHubSizeClick(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Hub));
+        }
+    }
 }

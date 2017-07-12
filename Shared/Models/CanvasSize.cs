@@ -6,6 +6,6 @@ namespace Shared.Models
 {
     public enum CanvasSize
     {
-		Mobile, Desktop, Hub
+        Mobile, Desktop, Hub
     }
 }

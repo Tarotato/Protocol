@@ -11,13 +11,13 @@ namespace Shared.ViewModels
     {
         public List<InkStrokeContainer> strokes;
         public StorageFolder folder;
-		public CanvasSize size;
+        public CanvasSize size;
 
         public MainCanvasParams(List<InkStrokeContainer> MCStrokes, StorageFolder MCFolder, CanvasSize PrototypeSize)
         {
             strokes = MCStrokes;
             folder = MCFolder;
-			size = PrototypeSize;
+            size = PrototypeSize;
         }
 
     }
