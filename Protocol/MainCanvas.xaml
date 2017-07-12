@@ -8,79 +8,114 @@
 	xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
 	mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <SplitView x:Name="NavigationPane" DisplayMode="Overlay" IsPaneOpen="False" OpenPaneLength="400" PanePlacement="Right">
+        <SplitView.Pane>
+            <!-- Navigation Pane Start-->
+            <StackPanel Background="#0068C0">
+                <StackPanel Margin="40,30,0,0">
+                    <TextBlock Text="Menu" FontSize="30" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,0,20"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="newButton" 
+				                Click="NewButton_Click" 
+                                Width="40" 
+                                Height="40" 
+                                Background="#0175BF"
+                                Foreground="White">
+                            <SymbolIcon Symbol="{x:Bind NewIcon}"/>
+                        </Button>
+                        <Button Background="Transparent" Click="NewButton_Click">
+                            <TextBlock Text="New Project" FontSize="16" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="10,0,0,5"/>
+                        </Button>                    
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                        <Button x:Name="openButton" 
+				            Click="OpenButton_ClickAsync"
+                            FontFamily="Segoe MDL2 Assets" 
+                            Width="40" 
+                            Height="40" 
+                            Background="#0175BF"
+                            Foreground="White">
+                        <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
+                        </Button>
+                        <Button Background="Transparent" Click="OpenButton_ClickAsync">
+                            <TextBlock Text="Open Exisiting Project" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                        <Button
+                            x:Name="exportButton" 
+				            Click="ExportButton_Click" 
+                            FontFamily="Segoe MDL2 Assets" 
+                            Width="40" 
+                            Height="40" 
+                            Background="#0175BF"
+                            Foreground="White">
+                        <SymbolIcon Symbol="{x:Bind ExportIcon}"/>
+                        </Button>
+                        <Button Background="Transparent" Click="ExportButton_Click">
+                            <TextBlock Text="Save as Image" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <!-- Navigation Pane End-->
+        </SplitView.Pane>
+        <SplitView.Content>
+            <!-- Main Canvas Start-->
+            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-        <Grid Grid.Row="1">
-            <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas" />
-            <InkCanvas x:Name="inkCanvas" />
+                <Grid Grid.Row="1">
+                    <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas" />
+                    <InkCanvas x:Name="inkCanvas" />
+                    <InkToolbar x:Name="inkToolbar"
+				        VerticalAlignment="Bottom"
+				        TargetInkCanvas="{x:Bind inkCanvas}" 
+				        HorizontalAlignment="Center">
 
-            <InkToolbar x:Name="inkToolbar"
-				VerticalAlignment="Bottom"
-				TargetInkCanvas="{x:Bind inkCanvas}" 
-				HorizontalAlignment="Center">
+                        <InkToolbarCustomToolButton 
+					        x:Name="addShapeToolButton" 
+					        Click="AddShapeToolButton_Click" 
+					        ToolTipService.ToolTip="Add Shape Tool">
+                            <SymbolIcon Symbol="{x:Bind ShapeIcon}"/>
+                        </InkToolbarCustomToolButton>
 
-                <InkToolbarCustomToolButton 
-					x:Name="addShapeToolButton" 
-					Click="AddShapeToolButton_Click" 
-					ToolTipService.ToolTip="Add Shape Tool">
-                    <SymbolIcon Symbol="{x:Bind ShapeIcon}"/>
-                </InkToolbarCustomToolButton>
-
-                <InkToolbarCustomToggleButton 
-                    x:Name="toggleTouchButton" 
-                    Click="ToggleTouch_Click" 
-                    ToolTipService.ToolTip="Toggle Touch">
-                    <SymbolIcon Symbol="{x:Bind TouchWritingIcon}"/>
-                </InkToolbarCustomToggleButton>
-            </InkToolbar>
+                        <InkToolbarCustomToggleButton 
+                            x:Name="toggleTouchButton" 
+                            Click="ToggleTouch_Click" 
+                            ToolTipService.ToolTip="Toggle Touch">
+                            <SymbolIcon Symbol="{x:Bind TouchWritingIcon}"/>
+                        </InkToolbarCustomToggleButton>
+                    </InkToolbar>
             
-            <StackPanel
-                VerticalAlignment="Bottom"
-                HorizontalAlignment="Right"
-                Orientation="Horizontal">
-                
-                <Button
-                    x:Name="exportButton" 
-				    Click="ExportButton_Click" 
-                    MinHeight="49"
-                    MinWidth="49"
-                    Background="WhiteSmoke"
-				    ToolTipService.ToolTip="Export">
-                    <SymbolIcon Symbol="{x:Bind ExportIcon}"/>
-                </Button>
-                
-                <Button
-                   x:Name="saveButton" 
-				    Click="SaveButton_Click"
-                    MinHeight="49"
-                    MinWidth="49"                    
-                    Background="WhiteSmoke"
-				    ToolTipService.ToolTip="Save Project">
-                    <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
-                </Button>
-
-                <Button
-                   x:Name="openButton" 
-				    Click="OpenButton_ClickAsync"
-                    MinHeight="49"
-                    MinWidth="49"                    
-                    Background="WhiteSmoke"
-				    ToolTipService.ToolTip="Open Project">
-                    <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
-                </Button>
-                <Button
-                   x:Name="newButton" 
-				    Click="NewButton_Click"
-                    MinHeight="49"
-                    MinWidth="49"                    
-                    Background="WhiteSmoke"
-				    ToolTipService.ToolTip="New Project">
-                    <SymbolIcon Symbol="{x:Bind NewIcon}"/>
-                </Button>
-            </StackPanel>                
-        </Grid>
-    </Grid>
+                    <StackPanel
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">  
+                        <Button
+                           x:Name="saveButton" 
+				            Click="SaveButton_Click"
+                            MinHeight="49"
+                            MinWidth="49"                    
+                            Background="WhiteSmoke"
+				            ToolTipService.ToolTip="Save Project">
+                            <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
+                        </Button>
+                        <Button
+                            x:Name="optionsButton" 
+			                Click="OptionsButton_Click"
+                            MinHeight="49"
+                            MinWidth="49"                    
+                            Background="WhiteSmoke"
+			                ToolTipService.ToolTip="New Project">
+                            <SymbolIcon Symbol="{x:Bind SettingsIcon}"/>
+                        </Button>
+                    </StackPanel>                
+                </Grid>
+            </Grid>
+            <!-- Main Canvas End-->
+        </SplitView.Content>
+    </SplitView>
 </Page>

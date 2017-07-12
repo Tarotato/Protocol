@@ -31,6 +31,7 @@ namespace Protocol
         Symbol SaveIcon = (Symbol)0xE105;
         Symbol OpenIcon = (Symbol)0xED43;
         Symbol NewIcon = (Symbol)0xE8E5;
+        Symbol SettingsIcon = (Symbol)0xE713;
 
         public MainCanvas()
 		{
@@ -223,7 +224,12 @@ namespace Protocol
                 
             if(open){
                 this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null));
-            }
+            }            
+        }
+
+        private void OptionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationPane.IsPaneOpen = !NavigationPane.IsPaneOpen;
         }
     }
 }
