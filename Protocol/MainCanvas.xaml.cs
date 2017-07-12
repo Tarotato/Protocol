@@ -223,7 +223,8 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
+                // TODO size is hard coded
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
             }
         }
 
@@ -233,8 +234,9 @@ namespace Protocol
             bool open = await d.BooleanDialogAsync("Open New Project?");
                 
             if(open){
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null));
-            }            
+                // TODO size is hard coded
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
+            }
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)

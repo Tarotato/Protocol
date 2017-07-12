@@ -59,6 +59,7 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
+                // TODO size is hard coded
                 this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
             }
         }
