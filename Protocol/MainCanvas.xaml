@@ -101,6 +101,29 @@
                         </InkToolbarCustomToggleButton>
                     </InkToolbar>
 
+                    <StackPanel
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <Button
+                           x:Name="saveButton" 
+                            Click="SaveButton_Click"
+                            MinHeight="49"
+                            MinWidth="49"                    
+                            Background="WhiteSmoke"
+                            ToolTipService.ToolTip="Save Project">
+                            <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
+                        </Button>
+                        <Button
+                            x:Name="optionsButton" 
+                            Click="OptionsButton_Click"
+                            MinHeight="49"
+                            MinWidth="49"                    
+                            Background="WhiteSmoke"
+                            ToolTipService.ToolTip="New Project">
+                            <SymbolIcon Symbol="{x:Bind SettingsIcon}"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </SplitView.Content>
