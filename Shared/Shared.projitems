@@ -12,15 +12,21 @@
     <Folder Include="$(MSBuildThisFileDirectory)Strings\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DialogFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml.cs">
       <DependentUpon>SaveDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\TernaryButtonDialog.xaml.cs">
+      <DependentUpon>TernaryButtonDialog.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\TernaryButtonDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

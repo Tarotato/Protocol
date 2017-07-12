@@ -213,23 +213,33 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder));
+                ConfirmSave(folder);
             }
         }
 
-        private async void NewButton_Click(object sender, RoutedEventArgs e)
+        private void NewButton_Click(object sender, RoutedEventArgs e)
         {
-            DialogFactory d = new DialogFactory();
-            bool open = await d.BooleanDialogAsync("Open New Project?");
-                
-            if(open){
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null));
-            }            
+            ConfirmSave(null);
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationPane.IsPaneOpen = !NavigationPane.IsPaneOpen;
+        }
+
+        private async void ConfirmSave(StorageFolder storageFolder)
+        {
+            TernaryButtonDialog t = new TernaryButtonDialog();
+            await t.ShowAsync();
+            if (t.result == ContentDialogResult.Primary)
+            {
+                await viewModel.SaveProject();
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), storageFolder));
+            }
+            else if (t.result == ContentDialogResult.Secondary)
+            {
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), storageFolder));
+            }
         }
     }
 }

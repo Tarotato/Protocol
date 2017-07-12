@@ -16,7 +16,6 @@ namespace Protocol
     public sealed partial class StartPage : Page
     {
         private List<InkStrokeContainer> strokes;
-        private DialogFactory dialogFactory = new DialogFactory();
 
         public StartPage()
         {

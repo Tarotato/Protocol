@@ -24,7 +24,6 @@ namespace Protocol
 		private Point _lastPoint;
 		private List<InkStrokeContainer> _strokes;
         private StorageFolder _storageFolder;
-        private DialogFactory _dialogFactory = new DialogFactory();
 
         public MainCanvasViewModel(MainCanvasParams parameters)
         {
@@ -151,45 +150,39 @@ namespace Protocol
 
         public async void SaveAsImage(double width, double height)
         {
-            bool confirmSave = await _dialogFactory.BooleanDialogAsync("Export File as an Image?");
+            // Set up and launch the Save Picker
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
 
-            if (confirmSave)
+            StorageFile file = await fileSavePicker.PickSaveFileAsync();
+            if (file != null)
             {
-                // Set up and launch the Save Picker
-                FileSavePicker fileSavePicker = new FileSavePicker();
-                fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
-                fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
+                // At this point, the app can begin writing to the provided save file
+                CanvasDevice device = CanvasDevice.GetSharedDevice();
+                CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
 
-                StorageFile file = await fileSavePicker.PickSaveFileAsync();
-                if (file != null)
+                using (var ds = renderTarget.CreateDrawingSession())
                 {
-                    // At this point, the app can begin writing to the provided save file
-                    CanvasDevice device = CanvasDevice.GetSharedDevice();
-                    CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
-
-                    using (var ds = renderTarget.CreateDrawingSession())
+                    ds.Clear(Colors.White);
+                    foreach (var item in _strokes)
                     {
-                        ds.Clear(Colors.White);
-                        foreach (var item in _strokes)
-                        {
-                            ds.DrawInk(item.GetStrokes());
-                        }
+                        ds.DrawInk(item.GetStrokes());
                     }
-
-                    using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
-                    {
-                        if (file.FileType.Equals(".jpeg"))
-                        {
-                            await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
-                        }
-                        else
-                        {
-                            await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
-                        }
-                    }
-
                 }
-            }            
+
+                using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    if (file.FileType.Equals(".jpeg"))
+                    {
+                        await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
+                    }
+                    else
+                    {
+                        await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
+                    }
+                }
+            }                        
         }
 
         public async Task<bool> SaveProject()
