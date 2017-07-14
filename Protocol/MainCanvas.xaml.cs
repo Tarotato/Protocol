@@ -14,6 +14,7 @@ using Windows.Storage.Pickers;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Shared.Models;
+using Shared.Utils;
 
 namespace Protocol
 {
@@ -38,7 +39,7 @@ namespace Protocol
         {
             this.InitializeComponent();
             inkToolbar.Loading += InkToolbar_Loading;
-            Loaded += MainCanvas_Loaded;						
+            Loaded += MainCanvas_Loaded;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -46,6 +47,7 @@ namespace Protocol
             var parameters = e.Parameter as MainCanvasParams;
             viewModel = new MainCanvasViewModel(parameters);
             viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
+            viewModel.ShowFlyoutAboveToolbar += ShowFlyout;
 
             if (parameters.size == CanvasSize.Mobile)
             {
@@ -138,7 +140,6 @@ namespace Protocol
         private void EraseAllInk(object sender, RoutedEventArgs e)
         {
             viewModel.ClearStokes();
-
             drawingCanvas.Invalidate();
         }
         
@@ -186,68 +187,43 @@ namespace Protocol
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            if(await viewModel.SaveProject())
-            {
-                FlyoutMsg("Project Saved", inkToolbar);
-            }
-        }
-
-        private void FlyoutMsg(string title, FrameworkElement parent)
-        {
-            TextBlock t = new TextBlock();
-            t.Text = title;
-            Flyout f = new Flyout();
-            f.Content = t;
-            f.ShowAt(parent);
+            await viewModel.SaveProject();
         }
 
         private async void OpenButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            List<InkStrokeContainer> strokes = new List<InkStrokeContainer>();
-            //Let the user pick a project folder to open
-            FolderPicker folderPicker = new FolderPicker();
-            folderPicker.FileTypeFilter.Add("*");
-
-            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            var parameters = await viewModel.OpenExistingProject();
+            if (parameters != null)
             {
-                IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
-                foreach (var f in files)
-                {
-                    if (f != null && f.FileType.Equals(".gif"))
-                    {
-                        // Open a file stream for reading.
-                        IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
-                        // Read from file.
-                        using (var inputStream = stream.GetInputStreamAt(0))
-                        {
-                            var container = new InkStrokeContainer();
-                            await container.LoadAsync(inputStream);
-                            //Add the strokes stored in the files
-                            strokes.Add(container);
-                        }
-                        stream.Dispose();
-                    }
-                }
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
+                viewModel = new MainCanvasViewModel(parameters);
+                drawingCanvas.Invalidate();
             }
         }
 
         private async void NewButton_Click(object sender, RoutedEventArgs e)
         {
-            DialogFactory d = new DialogFactory();
-            bool open = await d.BooleanDialogAsync("Open New Project?");
-                
-            if(open){
+            // TODO check if user want to save first
+            if (await viewModel.OpenNewProject() != ContentDialogResult.None)
+            {
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
+                viewModel = new MainCanvasViewModel(new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
+                drawingCanvas.Invalidate();
             }
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationPane.IsPaneOpen = !NavigationPane.IsPaneOpen;
+        }
+
+        private void ShowFlyout(string message)
+        {
+            TextBlock t = new TextBlock();
+            t.Text = message;
+            Flyout f = new Flyout();
+            f.Content = t;
+            f.ShowAt(inkToolbar);
         }
     }
 }
