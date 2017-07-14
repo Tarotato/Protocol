@@ -26,7 +26,7 @@ namespace Protocol
 
         private InkSynchronizer _inkSynchronizer;
 
-        Symbol ShapeIcon = (Symbol)0xE15B;
+        Symbol ToShapeIcon = (Symbol)0xE97B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
         Symbol ExportIcon = (Symbol)0xE158;
         Symbol SaveIcon = (Symbol)0xE105;
@@ -56,7 +56,6 @@ namespace Protocol
             }
         }
 
-        // Code for erasing dry ink from https://blogs.msdn.microsoft.com/synergist/2016/08/26/using-the-inktoolbar-with-custom-dry-ink-in-windows-anniversary-edition/
         private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
         {
             var inkPresenter = inkCanvas.InkPresenter;
@@ -101,10 +100,17 @@ namespace Protocol
         private void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
         {
             var strokes = _inkSynchronizer.BeginDry();
-            var container = new InkStrokeContainer();
-
-            container.AddStrokes(from item in strokes select item.Clone());
-            viewModel.AddStroke(container);
+            
+            if (inkToShapeButton.IsChecked.Value)
+            {
+                viewModel.RecognizeStrokes(from stroke in strokes select stroke.Clone());
+            } else
+            {
+                // add all strokes to _strokes when button unchecked (but what if they want to erase)
+                var container = new InkStrokeContainer();
+                container.AddStrokes(from item in strokes select item.Clone());
+                viewModel.AddStroke(container);
+            }
             _inkSynchronizer.EndDry();
 
             drawingCanvas.Invalidate();
@@ -156,9 +162,9 @@ namespace Protocol
             inkToolbar.Children.Add(ruler);
         }
 
-        private void AddShapeToolButton_Click(object sender, RoutedEventArgs e)
+        private void InkToShapeButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO 
+
         }
 
         private void ToggleTouch_Click(object sender, RoutedEventArgs e)

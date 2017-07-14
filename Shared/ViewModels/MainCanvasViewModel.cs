@@ -2,15 +2,19 @@
 using System;
 using System.Collections.Generic;
 using Windows.Foundation;
+using Windows.UI;
 using Windows.UI.Core;
+using Windows.UI.Input;
 using Windows.UI.Input.Inking;
+using Windows.UI.Input.Inking.Analysis;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.UI;
 using Windows.Storage.Streams;
 using Shared.ViewModels;
 using Shared.Views;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Shapes;
+using Windows.UI.Xaml.Media;
 
 namespace Protocol
 {
@@ -25,6 +29,11 @@ namespace Protocol
         private List<InkStrokeContainer> _strokes;
         private StorageFolder _storageFolder;
         private DialogFactory _dialogFactory = new DialogFactory();
+
+        // stroke recognition
+        InkAnalyzer inkAnalyzer = new InkAnalyzer();
+        InkAnalysisResult inkAnalysisResults = null;
+
 
         public MainCanvasViewModel(MainCanvasParams parameters)
         {
@@ -55,9 +64,79 @@ namespace Protocol
                         listSession.DrawInk(strokes);
                     }
                 }
-
                 session.DrawInk(strokes);
             }
+        }
+
+        internal async void RecognizeStrokes(IEnumerable<InkStroke> strokes)
+        {
+            inkAnalyzer.AddDataForStrokes(strokes);
+            inkAnalysisResults = await inkAnalyzer.AnalyzeAsync();
+
+            // Find all strokes that are recognized as a drawing and create a corresponding ink analysis InkDrawing node.
+            var inkdrawingNodes = inkAnalyzer.AnalysisRoot.FindNodes(InkAnalysisNodeKind.InkDrawing);
+            foreach (InkAnalysisInkDrawing node in inkdrawingNodes)
+            {
+                if (node.DrawingKind == InkAnalysisDrawingKind.Drawing)
+                {
+                    // Catch and process unsupported shapes (lines and so on) here.
+                }
+                else // Process generalized shapes here (ellipses and polygons).
+                {
+                    // Draw an Ellipse object on the recognitionCanvas (circle is a specialized ellipse).
+                    if (node.DrawingKind == InkAnalysisDrawingKind.Circle || node.DrawingKind == InkAnalysisDrawingKind.Ellipse)
+                    {
+                        DrawEllipse(node);
+                    }
+                    // Draw a Polygon object on the recognitionCanvas.
+                    else
+                    {
+                        DrawPolygon(node);
+                    }
+                    foreach (var strokeId in node.GetStrokeIds())
+                    {
+                        var stroke = inkCanvas.InkPresenter.StrokeContainer.GetStrokeById(strokeId);
+                        stroke.Selected = true;
+                    }
+                }
+                inkAnalyzer.RemoveDataForStrokes(node.GetStrokeIds());
+            }
+            inkCanvas.InkPresenter.StrokeContainer.DeleteSelected();
+        }
+
+        internal void StopRecognizingStrokes()
+        {
+            inkAnalyzer.ClearDataForAllStrokes();
+        }
+
+        private void DrawEllipse(InkAnalysisInkDrawing shape)
+        {
+            var points = shape.Points;
+            Ellipse ellipse = new Ellipse();
+            ellipse.Width = Math.Sqrt((points[0].X - points[2].X) * (points[0].X - points[2].X) +
+                    (points[0].Y - points[2].Y) * (points[0].Y - points[2].Y));
+            ellipse.Height = Math.Sqrt((points[1].X - points[3].X) * (points[1].X - points[3].X) +
+                    (points[1].Y - points[3].Y) * (points[1].Y - points[3].Y));
+
+            var rotAngle = Math.Atan2(points[2].Y - points[0].Y, points[2].X - points[0].X);
+            RotateTransform rotateTransform = new RotateTransform();
+            rotateTransform.Angle = rotAngle * 180 / Math.PI;
+            rotateTransform.CenterX = ellipse.Width / 2.0;
+            rotateTransform.CenterY = ellipse.Height / 2.0;
+
+            TranslateTransform translateTransform = new TranslateTransform();
+            translateTransform.X = shape.Center.X - ellipse.Width / 2.0;
+            translateTransform.Y = shape.Center.Y - ellipse.Height / 2.0;
+
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(rotateTransform);
+            transformGroup.Children.Add(translateTransform);
+            ellipse.RenderTransform = transformGroup;
+
+            var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
+            ellipse.Stroke = brush;
+            ellipse.StrokeThickness = 2;
+            recognitionCanvas.Children.Add(ellipse);
         }
 
         internal void StartErasing(Point point)
@@ -284,5 +363,7 @@ namespace Protocol
                 }
             }
         }
+
+
     }
 }

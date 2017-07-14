@@ -86,12 +86,12 @@
                     TargetInkCanvas="{x:Bind inkCanvas}" 
                     HorizontalAlignment="Center">
 
-                        <InkToolbarCustomToolButton 
-                        x:Name="addShapeToolButton" 
-                        Click="AddShapeToolButton_Click" 
-                        ToolTipService.ToolTip="Add Shape Tool">
-                            <SymbolIcon Symbol="{x:Bind ShapeIcon}"/>
-                        </InkToolbarCustomToolButton>
+                        <InkToolbarCustomToggleButton 
+                        x:Name="inkToShapeButton" 
+                        Click="InkToShapeButton_Click" 
+                        ToolTipService.ToolTip="Ink to Shape">
+                            <SymbolIcon Symbol="{x:Bind ToShapeIcon}"/>
+                        </InkToolbarCustomToggleButton>
 
                         <InkToolbarCustomToggleButton 
                         x:Name="toggleTouchButton" 
@@ -109,7 +109,7 @@
                            x:Name="saveButton" 
                             Click="SaveButton_Click"
                             MinHeight="49"
-                            MinWidth="49"                    
+                            MinWidth="49"
                             Background="WhiteSmoke"
                             ToolTipService.ToolTip="Save Project">
                             <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
@@ -118,7 +118,7 @@
                             x:Name="optionsButton" 
                             Click="OptionsButton_Click"
                             MinHeight="49"
-                            MinWidth="49"                    
+                            MinWidth="49"
                             Background="WhiteSmoke"
                             ToolTipService.ToolTip="New Project">
                             <SymbolIcon Symbol="{x:Bind SettingsIcon}"/>
