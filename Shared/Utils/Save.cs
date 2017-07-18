@@ -1,6 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Shared.Models;
-using Shared.ViewModels;
 using Shared.Views;
 using System;
 using System.Collections.Generic;

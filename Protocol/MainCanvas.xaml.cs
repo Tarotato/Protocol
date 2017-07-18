@@ -1,6 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Collections.Generic;
-using System;
 using System.Linq;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
@@ -8,13 +7,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
-using Shared.ViewModels;
-using Shared.Views;
-using Windows.Storage.Pickers;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using Shared.Models;
-using Shared.Utils;
+using Windows.UI.Xaml.Shapes;
 
 namespace Protocol
 {
@@ -48,6 +42,7 @@ namespace Protocol
             viewModel = new MainCanvasViewModel(parameters);
             viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
             viewModel.ShowFlyoutAboveToolbar += ShowFlyout;
+            viewModel.AddShapeToCanvas += AddShapeToRecognitionCanvas;
 
             if (parameters.size == CanvasSize.Mobile)
             {
@@ -99,22 +94,31 @@ namespace Protocol
             }
         }
 
-        private void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
+        private async void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
         {
             var strokes = _inkSynchronizer.BeginDry();
-            
-            if (inkToShapeButton.IsChecked.Value)
-            {
-                viewModel.RecognizeStrokes(from stroke in strokes select stroke.Clone());
-            } else
-            {
-                // add all strokes to _strokes when button unchecked (but what if they want to erase)
-                var container = new InkStrokeContainer();
-                container.AddStrokes(from item in strokes select item.Clone());
-                viewModel.AddStroke(container);
-            }
-            _inkSynchronizer.EndDry();
 
+            var container = new InkStrokeContainer();
+            var clonedStrokes = from item in strokes select item.Clone();
+            container.AddStrokes(clonedStrokes);
+            viewModel.AddStroke(container);
+
+            _inkSynchronizer.EndDry();
+            drawingCanvas.Invalidate();
+
+            if (inkToShapeButton.IsChecked.Value) // store strokes for recognition if button is checked
+            {
+                viewModel.RecognizeStrokes(clonedStrokes);
+            }
+            else
+            {
+                viewModel.StopRecognizingStrokes();
+            }
+        }
+
+        private void AddShapeToRecognitionCanvas(Shape shape)
+        {
+            recognitionCanvas.Children.Add(shape);
             drawingCanvas.Invalidate();
         }
 
@@ -156,16 +160,11 @@ namespace Protocol
             InkToolbarEraserButton eraser = new InkToolbarEraserButton();
             InkToolbarBallpointPenButton ballpoint = new InkToolbarBallpointPenButton();
             InkToolbarPencilButton pencil = new InkToolbarPencilButton();
-            InkToolbarRulerButton ruler = new InkToolbarRulerButton();
+            InkToolbarStencilButton ruler = new InkToolbarStencilButton();
             inkToolbar.Children.Add(eraser);
             inkToolbar.Children.Add(ballpoint);
             inkToolbar.Children.Add(pencil);
             inkToolbar.Children.Add(ruler);
-        }
-
-        private void InkToShapeButton_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void ToggleTouch_Click(object sender, RoutedEventArgs e)

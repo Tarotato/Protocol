@@ -2,19 +2,13 @@
 using System;
 using System.Collections.Generic;
 using Windows.Foundation;
-using Windows.UI;
 using Windows.UI.Core;
-using Windows.UI.Input;
 using Windows.UI.Input.Inking;
 using Windows.UI.Input.Inking.Analysis;
 using Windows.Storage;
-using Windows.Storage.Pickers;
-using Windows.Storage.Streams;
-using Shared.ViewModels;
-using Shared.Views;
+using Shared.Models;
 using System.Threading.Tasks;
 using Shared.Utils;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Media;
@@ -25,8 +19,13 @@ namespace Protocol
     {
         public delegate void ChangedEventHandler();
         public event ChangedEventHandler DrawCanvasInvalidated;
+
         public delegate void FlyoutEventHandler(string message);
         public event FlyoutEventHandler ShowFlyoutAboveToolbar;
+
+        public delegate void AddShapeHandler(Shape shape);
+        public event AddShapeHandler AddShapeToCanvas;
+
         private Save save = new Save();
 
         // fields for dry erasing
@@ -89,31 +88,18 @@ namespace Protocol
             var inkdrawingNodes = inkAnalyzer.AnalysisRoot.FindNodes(InkAnalysisNodeKind.InkDrawing);
             foreach (InkAnalysisInkDrawing node in inkdrawingNodes)
             {
-                if (node.DrawingKind == InkAnalysisDrawingKind.Drawing)
+                // Draw an Ellipse object on the recognitionCanvas (circle is a specialized ellipse).
+                if (node.DrawingKind == InkAnalysisDrawingKind.Circle || node.DrawingKind == InkAnalysisDrawingKind.Ellipse)
                 {
-                    // Catch and process unsupported shapes (lines and so on) here.
+                    DrawEllipse(node);
+                    inkAnalyzer.RemoveDataForStrokes(node.GetStrokeIds());
                 }
-                else // Process generalized shapes here (ellipses and polygons).
+                else if (node.DrawingKind != InkAnalysisDrawingKind.Drawing) // Draw a Polygon object on the inkCanvas.
                 {
-                    // Draw an Ellipse object on the recognitionCanvas (circle is a specialized ellipse).
-                    if (node.DrawingKind == InkAnalysisDrawingKind.Circle || node.DrawingKind == InkAnalysisDrawingKind.Ellipse)
-                    {
-                        DrawEllipse(node);
-                    }
-                    // Draw a Polygon object on the recognitionCanvas.
-                    else
-                    {
-                        DrawPolygon(node);
-                    }
-                    foreach (var strokeId in node.GetStrokeIds())
-                    {
-                        var stroke = inkCanvas.InkPresenter.StrokeContainer.GetStrokeById(strokeId);
-                        stroke.Selected = true;
-                    }
+                    DrawPolygon(node);
+                    inkAnalyzer.RemoveDataForStrokes(node.GetStrokeIds());
                 }
-                inkAnalyzer.RemoveDataForStrokes(node.GetStrokeIds());
             }
-            inkCanvas.InkPresenter.StrokeContainer.DeleteSelected();
         }
 
         internal void StopRecognizingStrokes()
@@ -148,7 +134,47 @@ namespace Protocol
             var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
             ellipse.Stroke = brush;
             ellipse.StrokeThickness = 2;
-            recognitionCanvas.Children.Add(ellipse);
+
+            RemoveStrokes(shape);
+            AddShapeToCanvas?.Invoke(ellipse);
+        }
+
+        private void DrawPolygon(InkAnalysisInkDrawing shape)
+        {
+            var points = shape.Points;
+            Polygon polygon = new Polygon();
+
+            foreach (var point in points)
+            {
+                polygon.Points.Add(point);
+            }
+
+            var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
+            polygon.Stroke = brush;
+            polygon.StrokeThickness = 2;
+
+            RemoveStrokes(shape);
+            AddShapeToCanvas?.Invoke(polygon);
+        }
+
+        private void RemoveStrokes(InkAnalysisInkDrawing shape)
+        {
+            foreach (var strokeId in shape.GetStrokeIds())
+            {
+                RemoveStroke(strokeId);
+            }
+        }
+
+        private void RemoveStroke(uint strokeId)
+        {
+            foreach (var item in _strokes.ToArray())
+            {
+                if (item.GetStrokeById(strokeId - 1) != null)
+                {
+                    _strokes.Remove(item);
+                    break;
+                }
+            }
         }
 
         internal void StartErasing(Point point)
@@ -263,7 +289,5 @@ namespace Protocol
         {
             return await save.ConfirmSave(_strokes, _storageFolder);
         }
-
-
     }
 }

@@ -75,6 +75,7 @@
 
                 <Grid Grid.Row="0" Grid.Column="0" Background="LightGray"/>
                 <Grid Grid.Row="0" Grid.Column="1">
+                    <Canvas x:Name="recognitionCanvas"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
@@ -87,8 +88,7 @@
                     HorizontalAlignment="Center">
 
                         <InkToolbarCustomToggleButton 
-                        x:Name="inkToShapeButton" 
-                        Click="InkToShapeButton_Click" 
+                        x:Name="inkToShapeButton"
                         ToolTipService.ToolTip="Ink to Shape">
                             <SymbolIcon Symbol="{x:Bind ToShapeIcon}"/>
                         </InkToolbarCustomToggleButton>

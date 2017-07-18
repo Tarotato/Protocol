@@ -1,11 +1,8 @@
-﻿using Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Windows.Storage;
 using Windows.UI.Input.Inking;
 
-namespace Shared.ViewModels
+namespace Shared.Models
 {
     public class MainCanvasParams
     {

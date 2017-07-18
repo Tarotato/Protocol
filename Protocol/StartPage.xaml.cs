@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shared.Models;
+using System;
 using System.Collections.Generic;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -6,8 +7,6 @@ using Windows.Storage.Streams;
 using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Shared.ViewModels;
-using Shared.Models;
 
 namespace Protocol
 {
