@@ -37,7 +37,7 @@ namespace Protocol
         // stroke recognition
         InkAnalyzer inkAnalyzer = new InkAnalyzer();
         InkAnalysisResult inkAnalysisResults = null;
-
+        InkDrawingAttributes currentBrush;
 
         public MainCanvasViewModel(MainCanvasParams parameters)
         {
@@ -131,11 +131,10 @@ namespace Protocol
             transformGroup.Children.Add(translateTransform);
             ellipse.RenderTransform = transformGroup;
 
-            var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
-            ellipse.Stroke = brush;
-            ellipse.StrokeThickness = 2;
-
             RemoveStrokes(shape);
+            ellipse.Stroke = new SolidColorBrush(currentBrush.Color);
+            ellipse.StrokeThickness = currentBrush.Size.Width;
+
             AddShapeToCanvas?.Invoke(ellipse);
         }
 
@@ -149,11 +148,10 @@ namespace Protocol
                 polygon.Points.Add(point);
             }
 
-            var brush = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 0, 0, 255));
-            polygon.Stroke = brush;
-            polygon.StrokeThickness = 2;
-
             RemoveStrokes(shape);
+            polygon.Stroke = new SolidColorBrush(currentBrush.Color); ;
+            polygon.StrokeThickness = currentBrush.Size.Width;
+
             AddShapeToCanvas?.Invoke(polygon);
         }
 
@@ -169,8 +167,10 @@ namespace Protocol
         {
             foreach (var item in _strokes.ToArray())
             {
-                if (item.GetStrokeById(strokeId - 1) != null)
+                var stroke = item.GetStrokeById(strokeId - 1); // -1 is hard coded
+                if (stroke != null)
                 {
+                    currentBrush = stroke.DrawingAttributes;
                     _strokes.Remove(item);
                     break;
                 }
