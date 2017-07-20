@@ -15,6 +15,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Shared.Models;
 using Shared.Utils;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Protocol
 {
@@ -26,6 +27,9 @@ namespace Protocol
         private MainCanvasViewModel viewModel;
 
         private InkSynchronizer _inkSynchronizer;
+
+        private enum GridType { None, Fine, Medium, Large };
+        private GridType currentGridType = GridType.None;
 
         Symbol ShapeIcon = (Symbol)0xE15B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
@@ -150,7 +154,7 @@ namespace Protocol
             InkToolbarEraserButton eraser = new InkToolbarEraserButton();
             InkToolbarBallpointPenButton ballpoint = new InkToolbarBallpointPenButton();
             InkToolbarPencilButton pencil = new InkToolbarPencilButton();
-            InkToolbarRulerButton ruler = new InkToolbarRulerButton();
+            InkToolbarStencilButton ruler = new InkToolbarStencilButton();
             inkToolbar.Children.Add(eraser);
             inkToolbar.Children.Add(ballpoint);
             inkToolbar.Children.Add(pencil);
@@ -159,7 +163,7 @@ namespace Protocol
 
         private void AddShapeToolButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO 
+            // TODO            
         }
 
         private void ToggleTouch_Click(object sender, RoutedEventArgs e)
@@ -218,6 +222,45 @@ namespace Protocol
             Flyout f = new Flyout();
             f.Content = t;
             f.ShowAt(inkToolbar);
+        }
+
+        private void GridButton_Click(object sender, RoutedEventArgs e)
+        {
+            //Open menu to choose grid granularity
+            FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
+        }
+
+        private void FineGridItem_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/grid_fine.png", UriKind.Absolute));
+            LoadGrid(GridType.Fine, bm);
+        }
+
+        private void MediumGridItem_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/grid_medium.png", UriKind.Absolute));
+            LoadGrid(GridType.Medium, bm);
+        }
+
+        private void LargeGridItem_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/grid_large.png", UriKind.Absolute));
+            LoadGrid(GridType.Large, bm);
+        }
+
+        private void LoadGrid(GridType type, BitmapImage bm)
+        {
+            if (currentGridType == type)
+            {
+                bgImage.Visibility = Visibility.Collapsed;
+                currentGridType = GridType.None;
+            }
+            else
+            {
+                bgImage.Source = bm;
+                currentGridType = type;
+                bgImage.Visibility = Visibility.Visible;
+            }
         }
     }
 }
