@@ -16,6 +16,8 @@ using Windows.Storage.Streams;
 using Shared.Models;
 using Shared.Utils;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Media;
+using Windows.UI;
 
 namespace Protocol
 {
@@ -38,6 +40,9 @@ namespace Protocol
         Symbol OpenIcon = (Symbol)0xED43;
         Symbol NewIcon = (Symbol)0xE8E5;
         Symbol SettingsIcon = (Symbol)0xE713;
+        
+        public enum TemplateChoice { Browser, MobYX, MobXX, MobYY, None }
+        private TemplateChoice templateChoice = TemplateChoice.None;
 
         public MainCanvas()
         {
@@ -185,28 +190,26 @@ namespace Protocol
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            await viewModel.SaveProject();
+            await viewModel.SaveProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice));
         }
 
         private async void OpenButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            var parameters = await viewModel.OpenExistingProject();
+            var parameters = await viewModel.OpenExistingProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice));
             if (parameters != null)
             {
                 // TODO size is hard coded
-                viewModel = new MainCanvasViewModel(parameters);
-                drawingCanvas.Invalidate();
+                this.Frame.Navigate(typeof(MainCanvas), parameters);
             }
         }
 
         private async void NewButton_Click(object sender, RoutedEventArgs e)
         {
             // TODO check if user want to save first
-            if (await viewModel.OpenNewProject() != ContentDialogResult.None)
+            if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
                 // TODO size is hard coded
-                viewModel = new MainCanvasViewModel(new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
-                drawingCanvas.Invalidate();
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
             }
         }
 
@@ -221,7 +224,21 @@ namespace Protocol
             t.Text = message;
             Flyout f = new Flyout();
             f.Content = t;
-            f.ShowAt(inkToolbar);
+            try
+            {
+                f.ShowAt(inkToolbar);
+            }
+            catch (ArgumentException ex)
+            {
+                if (ex.Message.StartsWith("The parameter is incorrect."))
+                {
+                    //Do nothing
+                }
+                else
+                {
+                    throw ex;
+                }
+            }
         }
 
         private void GridButton_Click(object sender, RoutedEventArgs e)
@@ -252,15 +269,63 @@ namespace Protocol
         {
             if (currentGridType == type)
             {
-                bgImage.Visibility = Visibility.Collapsed;
+                bgGrid.Visibility = Visibility.Collapsed;
                 currentGridType = GridType.None;
             }
             else
             {
-                bgImage.Source = bm;
+                bgGrid.Source = bm;
                 currentGridType = type;
-                bgImage.Visibility = Visibility.Visible;
+                bgGrid.Visibility = Visibility.Visible;
             }
+        }
+
+        private void BrowserTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/browser.png", UriKind.Absolute));
+            bgTemplate.Source = bm;
+
+            //Update template
+            templateChoice = TemplateChoice.Browser;
+        }
+
+        private async void MobileTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            TemplateDialog td = new TemplateDialog();
+            await td.ShowAsync();
+            var orientation = td.name;
+            BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mob{orientation}.png", UriKind.Absolute));
+            bgTemplate.Source = bm;
+
+            //Update template
+            templateChoice = td.templateChoice;
+        }
+
+        private void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (bgTemplate.Visibility == Visibility.Visible)
+            {
+                bgTemplate.Visibility = Visibility.Collapsed;
+                //Change the colour of the template buttons
+                browserTemplate1.IsEnabled = false;
+                browserTemplate2.IsEnabled = false;
+                browserTemplateText.Foreground = new SolidColorBrush(Colors.DarkGray);
+                mobileTemplate1.IsEnabled = false;
+                mobileTemplate2.IsEnabled = false;
+                mobileTemplateText.Foreground = new SolidColorBrush(Colors.DarkGray);
+            }
+            else
+            {
+                bgTemplate.Visibility = Visibility.Visible;
+                //Change the colour of the template buttons
+                browserTemplate1.IsEnabled = true;
+                browserTemplate2.IsEnabled = true;
+                browserTemplateText.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
+                mobileTemplate1.IsEnabled = true;
+                mobileTemplate2.IsEnabled = true;
+                mobileTemplateText.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
+            }
+            
         }
     }
 }

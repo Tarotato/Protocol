@@ -165,9 +165,9 @@ namespace Protocol
             save.SaveAsImage(width, height, _strokes);
         }
 
-        public async Task<bool> SaveProject()
+        public async Task<bool> SaveProject(ProjectMetaData metaData)
         {
-            var savedFolder = await save.SaveProject(_storageFolder, _strokes);
+            var savedFolder = await save.SaveProject(_storageFolder, _strokes, metaData);
             if(savedFolder != null)
             {
                 _storageFolder = savedFolder;
@@ -175,14 +175,14 @@ namespace Protocol
             return true;
         }
 
-        public async Task<MainCanvasParams> OpenExistingProject()
+        public async Task<MainCanvasParams> OpenExistingProject(ProjectMetaData metaData)
         {
-            return await save.OpenProject(_strokes, _storageFolder);
+            return await save.OpenProject(_strokes, _storageFolder, metaData);
         }
 
-        public async Task<ContentDialogResult> OpenNewProject()
+        public async Task<ContentDialogResult> OpenNewProject(ProjectMetaData metaData)
         {
-            return await save.ConfirmSave(_strokes, _storageFolder);
+            return await save.ConfirmSave(_strokes, _storageFolder, metaData);
         }
     }
 }

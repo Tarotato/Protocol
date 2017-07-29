@@ -7,13 +7,24 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     mc:Ignorable="d">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="ButtonForegroundDisabled" Color="DarkGray"/>
+                    <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="#0068C0"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
 
     <SplitView x:Name="NavigationPane" DisplayMode="Overlay" IsPaneOpen="False" OpenPaneLength="400" PanePlacement="Right">
         <SplitView.Pane>
             <!-- Navigation Pane Start-->
             <StackPanel Background="#0068C0">
                 <StackPanel Margin="40,30,0,0">
-                    <TextBlock Text="Menu" FontSize="30" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,0,20"/>
+                    <TextBlock Text="Options" FontSize="30" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,0,20"/>
+                    <TextBlock Text="File" FontSize="22" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,0,20"/>
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="newButton" 
                                 Click="NewButton_Click" 
@@ -56,6 +67,39 @@
                             <TextBlock Text="Save as Image" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>
                         </Button>
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,30,0,20">
+                        <TextBlock Text="Templates" FontSize="22" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,170,0"/>
+                        <ToggleSwitch HorizontalAlignment="Right" Foreground="WhiteSmoke" Toggled="ToggleSwitch_Toggled"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="browserTemplate1" 
+                                Click="BrowserTemplate_Click" 
+                                Width="40" 
+                                Height="40" 
+                                Background="#0175BF"
+                                Foreground="White"
+                                IsEnabled="False">
+                            <SymbolIcon Symbol="{x:Bind NewIcon}"/>
+                        </Button>
+                        <Button x:Name="browserTemplate2" Background="Transparent" Click="BrowserTemplate_Click" IsEnabled="False">
+                            <TextBlock x:Name="browserTemplateText" Text="Browser / Web" FontSize="16" VerticalAlignment="Center" Foreground="DarkGray" Margin="10,0,0,6"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                        <Button x:Name="mobileTemplate1" 
+                                Click="MobileTemplate_Click"
+                                FontFamily="Segoe MDL2 Assets" 
+                                Width="40" 
+                                Height="40" 
+                                Background="#0175BF"
+                                Foreground="White"
+                                IsEnabled="False">
+                            <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
+                        </Button>
+                        <Button x:Name="mobileTemplate2" Background="Transparent" Click="MobileTemplate_Click" IsEnabled="False">
+                            <TextBlock x:Name="mobileTemplateText" Text="Mobile" FontSize="16" Foreground="DarkGray" Margin="10,0,0,6"/>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
             <!-- Navigation Pane End-->
@@ -75,7 +119,8 @@
 
                 <Grid Grid.Row="0" Grid.Column="0" Background="LightGray"/>
                 <Grid Grid.Row="0" Grid.Column="1">
-                    <Image x:Name="bgImage" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
+                    <Image x:Name="bgTemplate" Source="/Assets/Browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
+                    <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
@@ -150,3 +195,4 @@
         </SplitView.Content>
     </SplitView>
 </Page>
+    

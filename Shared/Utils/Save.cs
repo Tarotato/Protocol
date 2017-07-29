@@ -60,12 +60,13 @@ namespace Shared.Utils
             }
         }
 
-        public async Task<StorageFolder> SaveProject(StorageFolder storageFolder, List<InkStrokeContainer> strokes)
+        public async Task<StorageFolder> SaveProject(StorageFolder storageFolder, List<InkStrokeContainer> strokes, ProjectMetaData metaData)
         {
             //Use existing folder
             if (storageFolder != null)
             {
                 SaveStrokes(storageFolder, strokes);
+                SaveMetaData(metaData, storageFolder);
                 return storageFolder;
             }
 
@@ -76,6 +77,7 @@ namespace Shared.Utils
             {
                 //Save
                 SaveStrokes(save.folder, strokes);
+                SaveMetaData(metaData, storageFolder);
                 storageFolder = save.folder;
                 return storageFolder;
             }
@@ -140,18 +142,36 @@ namespace Shared.Utils
             ShowFlyoutAboveInkToolbar?.Invoke("Project Saved");
         }
 
-        public async Task<ContentDialogResult> ConfirmSave(List<InkStrokeContainer> strokes, StorageFolder folder)
+        private async void SaveMetaData(ProjectMetaData metaData, StorageFolder storageFolder)
+        {
+            var file = await storageFolder.CreateFileAsync($"{storageFolder.Name}Protocol.txt", CreationCollisionOption.ReplaceExisting);
+            var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+            using (var outputStream = stream.GetOutputStreamAt(0))
+            {
+                // We'll add more code here in the next step.
+                using (var dataWriter = new DataWriter(outputStream))
+                {
+                    dataWriter.WriteString($"Template Visible: {metaData.templateVisibility.ToString()}");
+                    dataWriter.WriteString($"Template Choice: {metaData.templateChoice.ToString()}");
+                    await dataWriter.StoreAsync();
+                    await outputStream.FlushAsync();
+                }
+            }
+            stream.Dispose(); // Or use the stream variable (see previous code snippet) with a using statement as well.
+        }
+
+        public async Task<ContentDialogResult> ConfirmSave(List<InkStrokeContainer> strokes, StorageFolder folder, ProjectMetaData metaData)
         {
             TernaryButtonDialog t = new TernaryButtonDialog();
             await t.ShowAsync();
             if (t.result == ContentDialogResult.Primary)
             {
-                await SaveProject(folder, strokes);
+                await SaveProject(folder, strokes, metaData);
             }
             return t.result;
         }
 
-        public async Task<MainCanvasParams> OpenProject(List<InkStrokeContainer> currentStrokes, StorageFolder currentFolder)
+        public async Task<MainCanvasParams> OpenProject(List<InkStrokeContainer> currentStrokes, StorageFolder currentFolder, ProjectMetaData metaData)
         {
             List<InkStrokeContainer> newStrokes = new List<InkStrokeContainer>();
             //Let the user pick a project folder to open
@@ -179,7 +199,7 @@ namespace Shared.Utils
                         stream.Dispose();
                     }
                 }
-                var result = await ConfirmSave(currentStrokes, currentFolder);
+                var result = await ConfirmSave(currentStrokes, currentFolder, metaData);
                 if (result != ContentDialogResult.None)
                 {
                     return new MainCanvasParams(newStrokes, newFolder, CanvasSize.Hub);
