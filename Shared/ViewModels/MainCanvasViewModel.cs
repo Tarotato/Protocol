@@ -23,8 +23,9 @@ namespace Protocol
         public delegate void FlyoutEventHandler(string message);
         public event FlyoutEventHandler ShowFlyoutAboveToolbar;
 
-        public delegate void AddShapeHandler(Shape shape);
-        public event AddShapeHandler AddShapeToCanvas;
+        public delegate void ShapeHandler(Shape shape);
+        public event ShapeHandler AddShapeToCanvas;
+        public event ShapeHandler RemoveShapeFromCanvas;
 
         private Save save = new Save();
 
@@ -35,9 +36,12 @@ namespace Protocol
         private StorageFolder _storageFolder;
 
         // stroke recognition
+        ShapeRecognitionUtil shapeHelper = new ShapeRecognitionUtil();
         InkAnalyzer inkAnalyzer = new InkAnalyzer();
         InkAnalysisResult inkAnalysisResults = null;
         InkDrawingAttributes currentBrush;
+
+        List<CanvasComponent> components = new List<CanvasComponent>();
 
         public MainCanvasViewModel(MainCanvasParams parameters)
         {
@@ -109,50 +113,26 @@ namespace Protocol
 
         private void DrawEllipse(InkAnalysisInkDrawing shape)
         {
-            var points = shape.Points;
-            Ellipse ellipse = new Ellipse();
-            ellipse.Width = Math.Sqrt((points[0].X - points[2].X) * (points[0].X - points[2].X) +
-                    (points[0].Y - points[2].Y) * (points[0].Y - points[2].Y));
-            ellipse.Height = Math.Sqrt((points[1].X - points[3].X) * (points[1].X - points[3].X) +
-                    (points[1].Y - points[3].Y) * (points[1].Y - points[3].Y));
-
-            var rotAngle = Math.Atan2(points[2].Y - points[0].Y, points[2].X - points[0].X);
-            RotateTransform rotateTransform = new RotateTransform();
-            rotateTransform.Angle = rotAngle * 180 / Math.PI;
-            rotateTransform.CenterX = ellipse.Width / 2.0;
-            rotateTransform.CenterY = ellipse.Height / 2.0;
-
-            TranslateTransform translateTransform = new TranslateTransform();
-            translateTransform.X = shape.Center.X - ellipse.Width / 2.0;
-            translateTransform.Y = shape.Center.Y - ellipse.Height / 2.0;
-
-            TransformGroup transformGroup = new TransformGroup();
-            transformGroup.Children.Add(rotateTransform);
-            transformGroup.Children.Add(translateTransform);
-            ellipse.RenderTransform = transformGroup;
+            CanvasComponent ellipse = shapeHelper.BuildEllipse(shape);
 
             RemoveStrokes(shape);
-            ellipse.Stroke = new SolidColorBrush(currentBrush.Color);
-            ellipse.StrokeThickness = currentBrush.Size.Width;
+            ellipse.shape.Stroke = new SolidColorBrush(currentBrush.Color);
+            ellipse.shape.StrokeThickness = currentBrush.Size.Width;
 
-            AddShapeToCanvas?.Invoke(ellipse);
+            components.Add(ellipse);
+            AddShapeToCanvas?.Invoke(ellipse.shape);
         }
 
         private void DrawPolygon(InkAnalysisInkDrawing shape)
         {
-            var points = shape.Points;
-            Polygon polygon = new Polygon();
-
-            foreach (var point in points)
-            {
-                polygon.Points.Add(point);
-            }
+            CanvasComponent polygon = shapeHelper.BuildPolygon(shape);
 
             RemoveStrokes(shape);
-            polygon.Stroke = new SolidColorBrush(currentBrush.Color); ;
-            polygon.StrokeThickness = currentBrush.Size.Width;
+            polygon.shape.Stroke = new SolidColorBrush(currentBrush.Color);
+            polygon.shape.StrokeThickness = currentBrush.Size.Width;
 
-            AddShapeToCanvas?.Invoke(polygon);
+            components.Add(polygon);
+            AddShapeToCanvas?.Invoke(polygon.shape);
         }
 
         private void RemoveStrokes(InkAnalysisInkDrawing shape)
@@ -167,7 +147,7 @@ namespace Protocol
         {
             foreach (var item in _strokes.ToArray())
             {
-                var stroke = item.GetStrokeById(strokeId - 1); // -1 is hard coded
+                var stroke = item.GetStrokeById(strokeId -1); // -1 is hard coded
                 if (stroke != null)
                 {
                     currentBrush = stroke.DrawingAttributes;
@@ -206,6 +186,7 @@ namespace Protocol
                 return;
             }
 
+            // canvas: CanvasControl
             var invalidate = false;
 
             foreach (var item in _strokes.ToArray())
@@ -220,19 +201,26 @@ namespace Protocol
                 if (rect.Width * rect.Height > 0)
                 {
                     _strokes.Remove(item);
-
                     invalidate = true;
                 }
             }
-
-            _lastPoint = args.CurrentPoint.Position;
-
-            args.Handled = true;
 
             if (invalidate)
             {
                 DrawCanvasInvalidated?.Invoke();
             }
+
+            // Recognition canvas
+            foreach (var component in components)
+            {
+                if (shapeHelper.ShouldDelete(_lastPoint, args.CurrentPoint.Position, component))
+                {
+                    RemoveShapeFromCanvas?.Invoke(component.shape);
+                }
+            }
+
+            _lastPoint = args.CurrentPoint.Position;
+            args.Handled = true;
         }
 
         private void UnprocessedInput_PointerLost(InkUnprocessedInput sender, PointerEventArgs args)

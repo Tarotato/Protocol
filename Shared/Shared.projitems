@@ -12,9 +12,11 @@
     <Folder Include="$(MSBuildThisFileDirectory)Strings\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Models\CanvasComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\CanvasSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MainCanvasParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Save.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\ShapeRecognitionUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml.cs">
       <DependentUpon>SaveDialog.xaml</DependentUpon>
