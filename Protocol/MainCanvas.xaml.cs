@@ -1,6 +1,5 @@
 ﻿using Microsoft.Graphics.Canvas.UI.Xaml;
 using System.Collections.Generic;
-using System;
 using System.Linq;
 using Windows.UI.Core;
 using Windows.UI.Input.Inking;
@@ -8,14 +7,12 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
-using Shared.ViewModels;
-using Shared.Views;
-using Windows.Storage.Pickers;
-using Windows.Storage;
-using Windows.Storage.Streams;
 using Shared.Models;
 using Shared.Utils;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Shapes;
+using System;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
 
@@ -34,6 +31,7 @@ namespace Protocol
         private GridType currentGridType = GridType.None;
 
         Symbol ShapeIcon = (Symbol)0xE15B;
+        Symbol ToShapeIcon = (Symbol)0xE97B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
         Symbol ExportIcon = (Symbol)0xE158;
         Symbol SaveIcon = (Symbol)0xE105;
@@ -57,6 +55,8 @@ namespace Protocol
             viewModel = new MainCanvasViewModel(parameters);
             viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
             viewModel.ShowFlyoutAboveToolbar += ShowFlyout;
+            viewModel.AddShapeToCanvas += AddShapeToRecognitionCanvas;
+            viewModel.RemoveShapeFromCanvas += RemoveShapeFromRecognitionCanvas;
 
             if (parameters.size == CanvasSize.Mobile)
             {
@@ -67,7 +67,6 @@ namespace Protocol
             }
         }
 
-        // Code for erasing dry ink from https://blogs.msdn.microsoft.com/synergist/2016/08/26/using-the-inktoolbar-with-custom-dry-ink-in-windows-anniversary-edition/
         private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
         {
             var inkPresenter = inkCanvas.InkPresenter;
@@ -85,26 +84,24 @@ namespace Protocol
             // Handle whether input is pen eraser
             inkPresenter.UnprocessedInput.PointerPressed += UnprocessedInput_PointerPressed;
 
-            var eraser = inkToolbar.GetToolButton(InkToolbarTool.Eraser) as InkToolbarEraserButton;
-            SetUpEraseAll(eraser);
+            SetUpEraseAll();
         }
         
-        private void SetUpEraseAll(InkToolbarEraserButton eraser) {
+        private void SetUpEraseAll() {
+            var eraser = inkToolbar.GetToolButton(InkToolbarTool.Eraser) as InkToolbarEraserButton;
+
             // Handle erase all strokes
             var flyout = FlyoutBase.GetAttachedFlyout(eraser) as Flyout;
 
             if (flyout != null)
             {
-                var button = flyout.Content as Button;
+                var content = flyout.Content as StackPanel;
+                
+                var button = content.Children.ElementAt(3) as InkToolbarFlyoutItem;
 
                 if (button != null)
                 {
-                    var newButton = new Button();
-                    newButton.Style = button.Style;
-                    newButton.Content = button.Content;
-
-                    newButton.Click += EraseAllInk;
-                    flyout.Content = newButton;
+                    button.Click += EraseAllInk;
                 }
             }
         }
@@ -112,13 +109,34 @@ namespace Protocol
         private void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
         {
             var strokes = _inkSynchronizer.BeginDry();
+
             var container = new InkStrokeContainer();
-
-            container.AddStrokes(from item in strokes select item.Clone());
+            var clonedStrokes = from item in strokes select item.Clone();
+            container.AddStrokes(clonedStrokes);
             viewModel.AddStroke(container);
-            _inkSynchronizer.EndDry();
 
+            _inkSynchronizer.EndDry();
             drawingCanvas.Invalidate();
+
+            if (inkToShapeButton.IsChecked.Value) // store strokes for recognition if button is checked
+            {
+                viewModel.RecognizeStrokes(clonedStrokes);
+            }
+            else
+            {
+                viewModel.StopRecognizingStrokes();
+            }
+        }
+
+        private void AddShapeToRecognitionCanvas(Shape shape)
+        {
+            recognitionCanvas.Children.Add(shape);
+            drawingCanvas.Invalidate();
+        }
+
+        private void RemoveShapeFromRecognitionCanvas(Shape shape)
+        {
+            recognitionCanvas.Children.Remove(shape);
         }
 
         private void DrawCanvas(CanvasControl sender, CanvasDrawEventArgs args)
@@ -144,6 +162,7 @@ namespace Protocol
         {
             viewModel.ClearStokes();
             drawingCanvas.Invalidate();
+            recognitionCanvas.Children.Clear();
         }
         
         private void Invalidate_DrawingCanvas()
@@ -164,11 +183,6 @@ namespace Protocol
             inkToolbar.Children.Add(ballpoint);
             inkToolbar.Children.Add(pencil);
             inkToolbar.Children.Add(ruler);
-        }
-
-        private void AddShapeToolButton_Click(object sender, RoutedEventArgs e)
-        {
-            // TODO            
         }
 
         private void ToggleTouch_Click(object sender, RoutedEventArgs e)

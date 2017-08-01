@@ -121,6 +121,7 @@
                 <Grid Grid.Row="0" Grid.Column="1">
                     <Image x:Name="bgTemplate" Source="/Assets/Browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
+                    <Canvas x:Name="recognitionCanvas"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
@@ -132,12 +133,11 @@
                     TargetInkCanvas="{x:Bind inkCanvas}" 
                     HorizontalAlignment="Center">
 
-                        <InkToolbarCustomToolButton 
-                        x:Name="addShapeToolButton" 
-                        Click="AddShapeToolButton_Click" 
-                        ToolTipService.ToolTip="Add Shape Tool">
-                            <SymbolIcon Symbol="{x:Bind ShapeIcon}"/>
-                        </InkToolbarCustomToolButton>
+                        <InkToolbarCustomToggleButton 
+                        x:Name="inkToShapeButton"
+                        ToolTipService.ToolTip="Ink to Shape">
+                            <SymbolIcon Symbol="{x:Bind ToShapeIcon}"/>
+                        </InkToolbarCustomToggleButton>
 
                         <InkToolbarCustomToggleButton 
                         x:Name="toggleTouchButton" 
@@ -175,7 +175,7 @@
                            x:Name="saveButton" 
                             Click="SaveButton_Click"
                             MinHeight="49"
-                            MinWidth="49"                    
+                            MinWidth="49"
                             Background="WhiteSmoke"
                             ToolTipService.ToolTip="Save Project">
                             <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
@@ -184,7 +184,7 @@
                             x:Name="optionsButton" 
                             Click="OptionsButton_Click"
                             MinHeight="49"
-                            MinWidth="49"                    
+                            MinWidth="49"
                             Background="WhiteSmoke"
                             ToolTipService.ToolTip="New Project">
                             <SymbolIcon Symbol="{x:Bind SettingsIcon}"/>
