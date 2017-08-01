@@ -8,6 +8,8 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Navigation;
 using Shared.Models;
+using Shared.Utils;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 using System;
 using Windows.UI.Xaml.Input;
@@ -23,6 +25,10 @@ namespace Protocol
 
         private InkSynchronizer _inkSynchronizer;
 
+        private enum GridType { None, Fine, Medium, Large };
+        private GridType currentGridType = GridType.None;
+
+        Symbol ShapeIcon = (Symbol)0xE15B;
         Symbol ToShapeIcon = (Symbol)0xE97B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
         Symbol ExportIcon = (Symbol)0xE158;
@@ -230,6 +236,45 @@ namespace Protocol
             Flyout f = new Flyout();
             f.Content = t;
             f.ShowAt(inkToolbar);
+        }
+
+        private void GridButton_Click(object sender, RoutedEventArgs e)
+        {
+            //Open menu to choose grid granularity
+            FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
+        }
+
+        private void FineGridItem_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/grid_fine.png", UriKind.Absolute));
+            LoadGrid(GridType.Fine, bm);
+        }
+
+        private void MediumGridItem_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/grid_medium.png", UriKind.Absolute));
+            LoadGrid(GridType.Medium, bm);
+        }
+
+        private void LargeGridItem_Click(object sender, RoutedEventArgs e)
+        {
+            BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/grid_large.png", UriKind.Absolute));
+            LoadGrid(GridType.Large, bm);
+        }
+
+        private void LoadGrid(GridType type, BitmapImage bm)
+        {
+            if (currentGridType == type)
+            {
+                bgImage.Visibility = Visibility.Collapsed;
+                currentGridType = GridType.None;
+            }
+            else
+            {
+                bgImage.Source = bm;
+                currentGridType = type;
+                bgImage.Visibility = Visibility.Visible;
+            }
         }
     }
 }

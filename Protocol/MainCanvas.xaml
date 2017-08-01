@@ -75,6 +75,7 @@
 
                 <Grid Grid.Row="0" Grid.Column="0" Background="LightGray"/>
                 <Grid Grid.Row="0" Grid.Column="1">
+                    <Image x:Name="bgImage" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <Canvas x:Name="recognitionCanvas"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
@@ -105,6 +106,26 @@
                         VerticalAlignment="Bottom"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
+                        <Button 
+                            x:Name="gridButton" 
+                            Click="GridButton_Click" 
+                            MinHeight="49"
+                            MinWidth="49"                    
+                            Background="WhiteSmoke"
+                            ToolTipService.ToolTip="Display Grid">
+                            <FlyoutBase.AttachedFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem x:Name="fine" Text="Fine Grid" Click="FineGridItem_Click">
+                                        <MenuFlyoutItem.Icon>
+                                            <FontIcon Glyph="&#xE80A;" />
+                                        </MenuFlyoutItem.Icon>
+                                    </MenuFlyoutItem>
+                                    <MenuFlyoutItem x:Name="medium" Text="Medium Grid" Click="MediumGridItem_Click" Icon="ViewAll"/>
+                                    <MenuFlyoutItem x:Name="large" Text="Large Grid" Click="LargeGridItem_Click" Icon="Add"/>
+                                </MenuFlyout>
+                            </FlyoutBase.AttachedFlyout>
+                            <FontIcon Glyph="&#xE8A9;" />
+                        </Button>
                         <Button
                            x:Name="saveButton" 
                             Click="SaveButton_Click"
