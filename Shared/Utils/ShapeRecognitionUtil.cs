@@ -40,7 +40,9 @@ namespace Shared.Utils
             component.a = ellipse.Width / 2.0;
             component.b = ellipse.Height / 2.0;
             component.rotAngle = rotAngle;
-            var point = new Point(shape.Center.X - ellipse.Width / 2.0, shape.Center.Y - ellipse.Height / 2.0);
+            // var point = new Point(shape.Center.X - ellipse.Width / 2.0, shape.Center.Y - ellipse.Height / 2.0);
+            var point = new Point(shape.Center.X, shape.Center.Y);
+
             component.center = point;
             component.shape = ellipse;
 

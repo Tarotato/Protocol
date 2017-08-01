@@ -120,6 +120,7 @@ namespace Protocol
         private void AddShapeToRecognitionCanvas(Shape shape)
         {
             recognitionCanvas.Children.Add(shape);
+            drawingCanvas.Invalidate();
         }
 
         private void RemoveShapeFromRecognitionCanvas(Shape shape)
