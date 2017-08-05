@@ -15,6 +15,7 @@ using System;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
+using Shared.Views;
 
 namespace Protocol
 {

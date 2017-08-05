@@ -111,9 +111,16 @@
     <None Include="Protocol_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\browser.png" />
     <Content Include="Assets\grid_fine.png" />
     <Content Include="Assets\grid_large.png" />
     <Content Include="Assets\grid_medium.png" />
+    <Content Include="Assets\mobXX.png" />
+    <Content Include="Assets\mobXXLogo.png" />
+    <Content Include="Assets\mobYX.png" />
+    <Content Include="Assets\mobYXLogo.png" />
+    <Content Include="Assets\mobYY.png" />
+    <Content Include="Assets\mobYYLogo.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

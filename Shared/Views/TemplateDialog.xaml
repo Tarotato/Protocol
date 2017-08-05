@@ -7,10 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     x:Name="templateDialog"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="401" Width="491">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Height="500" Width="600">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel Margin="40,40,40,50" >
+        <StackPanel Margin="40,40,40,50">
             <TextBlock
                 FontSize="20"
                 Margin="0,0,0,10">
@@ -18,13 +18,13 @@
             </TextBlock>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <RadioButton x:Name="rdYX">
-                    <Image Source="/Assets/StoreLogo.png"/> 
+                    <Image Height="100" Width="100" Source="/Assets/mobYXLogo.png"/> 
                 </RadioButton>
                 <RadioButton x:Name="rdYY">
-                    <Image Source="/Assets/StoreLogo.png"/>
+                    <Image Height="100" Width="100" Source="/Assets/mobYYLogo.png"/>
                 </RadioButton>
                 <RadioButton x:Name="rdXX">
-                    <Image Source="/Assets/StoreLogo.png"/>
+                    <Image Height="100" Width="100" Source="/Assets/mobXXLogo.png"/>
                 </RadioButton>
             </StackPanel>
 
