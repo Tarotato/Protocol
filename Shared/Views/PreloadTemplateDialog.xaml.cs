@@ -18,39 +18,35 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Shared.Views
 {
-    public sealed partial class TemplateDialog : ContentDialog
+    public sealed partial class PreloadTemplateDialog : ContentDialog
     {
-        public string name { get; set; }
-        public TemplateChoice templateChoice = TemplateChoice.None;
+        public TemplateChoice template { get; set; }
 
-        public TemplateDialog()
+        public PreloadTemplateDialog()
         {
             this.InitializeComponent();
         }
 
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
-            if (rdYX.IsChecked == true)
+            if (none.IsChecked == true)
             {
-                name = "YX";
-                templateChoice = TemplateChoice.MobYX;
+                template = TemplateChoice.None;
             }
-            else if (rdXX.IsChecked == true)
+            else if (mobile.IsChecked == true)
             {
-                name = "XX";
-                templateChoice = TemplateChoice.MobXX;
+                template = TemplateChoice.MobYY;
             }
-            else if (rdYY.IsChecked == true)
+            else if (browser.IsChecked == true)
             {
-                name = "YY";
-                templateChoice = TemplateChoice.MobYY;
+                template = TemplateChoice.Browser;
             }
-            templateDialog.Hide();
+            preloadTemplateDialog.Hide();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            templateDialog.Hide();
+            preloadTemplateDialog.Hide();
         }
     }
 }

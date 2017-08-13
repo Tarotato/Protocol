@@ -31,7 +31,6 @@ namespace Protocol
         private enum GridType { None, Fine, Medium, Large };
         private GridType currentGridType = GridType.None;
 
-        Symbol ShapeIcon = (Symbol)0xE15B;
         Symbol ToShapeIcon = (Symbol)0xE97B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
         Symbol ExportIcon = (Symbol)0xE158;
@@ -39,8 +38,9 @@ namespace Protocol
         Symbol OpenIcon = (Symbol)0xED43;
         Symbol NewIcon = (Symbol)0xE8E5;
         Symbol SettingsIcon = (Symbol)0xE713;
-        
-        public enum TemplateChoice { Browser, MobYX, MobXX, MobYY, None }
+        Symbol MobileIcon = (Symbol)0xE8EA;
+        Symbol WebIcon = (Symbol)0xE774;
+
         private TemplateChoice templateChoice = TemplateChoice.None;
 
         public MainCanvas()
@@ -59,12 +59,20 @@ namespace Protocol
             viewModel.AddShapeToCanvas += AddShapeToRecognitionCanvas;
             viewModel.RemoveShapeFromCanvas += RemoveShapeFromRecognitionCanvas;
 
-            if (parameters.size == CanvasSize.Mobile)
+            templateChoice = parameters.template;
+            if (templateChoice == TemplateChoice.Browser)
             {
-                leftPanel.Width = new GridLength(1, GridUnitType.Star);
-                rightPanel.Width = new GridLength(1, GridUnitType.Star);
-                inkCanvas.MinWidth = 607.5;
-                drawingCanvas.MinWidth = 607.5;
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/browser.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+            else if (templateChoice == TemplateChoice.MobYY)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYY.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
             }
         }
 
@@ -224,7 +232,7 @@ namespace Protocol
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None));
             }
         }
 

@@ -69,7 +69,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,30,0,20">
                         <TextBlock Text="Templates" FontSize="22" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,170,0"/>
-                        <ToggleSwitch HorizontalAlignment="Right" Foreground="WhiteSmoke" Toggled="ToggleSwitch_Toggled"/>
+                        <ToggleSwitch x:Name="templateToggle" HorizontalAlignment="Right" Foreground="WhiteSmoke" Toggled="ToggleSwitch_Toggled"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="browserTemplate1" 
@@ -79,7 +79,7 @@
                                 Background="#0175BF"
                                 Foreground="White"
                                 IsEnabled="False">
-                            <SymbolIcon Symbol="{x:Bind NewIcon}"/>
+                            <SymbolIcon Symbol="{x:Bind WebIcon}"/>
                         </Button>
                         <Button x:Name="browserTemplate2" Background="Transparent" Click="BrowserTemplate_Click" IsEnabled="False">
                             <TextBlock x:Name="browserTemplateText" Text="Browser / Web" FontSize="16" VerticalAlignment="Center" Foreground="DarkGray" Margin="10,0,0,6"/>
@@ -94,7 +94,7 @@
                                 Background="#0175BF"
                                 Foreground="White"
                                 IsEnabled="False">
-                            <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
+                            <SymbolIcon Symbol="{x:Bind MobileIcon}"/>
                         </Button>
                         <Button x:Name="mobileTemplate2" Background="Transparent" Click="MobileTemplate_Click" IsEnabled="False">
                             <TextBlock x:Name="mobileTemplateText" Text="Mobile" FontSize="16" Foreground="DarkGray" Margin="10,0,0,6"/>
@@ -112,22 +112,18 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition x:Name="leftPanel" Width="0"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition x:Name="rightPanel" Width="0"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Row="0" Grid.Column="0" Background="LightGray"/>
-                <Grid Grid.Row="0" Grid.Column="1">
+                <Grid >
                     <Image x:Name="bgTemplate" Source="/Assets/Browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <Canvas x:Name="recognitionCanvas"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
-                <Grid Grid.Row="0" Grid.Column="2" Background="LightGray"/>
 
-                <Grid Grid.ColumnSpan="3">
+                <Grid>
                     <InkToolbar x:Name="inkToolbar"
                     VerticalAlignment="Bottom"
                     TargetInkCanvas="{x:Bind inkCanvas}" 

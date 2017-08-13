@@ -265,7 +265,7 @@ namespace Shared.Utils
                 var result = await ConfirmSave(currentStrokes, currentFolder, metaData);
                 if (result != ContentDialogResult.None)
                 {
-                    return new MainCanvasParams(newStrokes, newFolder, CanvasSize.Hub);
+                    return new MainCanvasParams(newStrokes, newFolder, TemplateChoice.None);
                 }
             }
             return null;

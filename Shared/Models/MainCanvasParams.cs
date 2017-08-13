@@ -8,13 +8,13 @@ namespace Shared.Models
     {
         public List<InkStrokeContainer> strokes;
         public StorageFolder folder;
-        public CanvasSize size;
+        public TemplateChoice template;
 
-        public MainCanvasParams(List<InkStrokeContainer> MCStrokes, StorageFolder MCFolder, CanvasSize PrototypeSize)
+        public MainCanvasParams(List<InkStrokeContainer> MCStrokes, StorageFolder MCFolder, TemplateChoice chosenTemplate)
         {
             strokes = MCStrokes;
             folder = MCFolder;
-            size = PrototypeSize;
+            template = chosenTemplate;
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using Shared.Models;
+using Shared.Views;
 using System;
 using System.Collections.Generic;
 using Windows.Storage;
@@ -23,11 +24,12 @@ namespace Protocol
             this.InitializeComponent();
         }
 
-        private void OnNewProjectClick(object sender, RoutedEventArgs e)
+        private async void OnNewProjectClick(object sender, RoutedEventArgs e)
         {
-            ProjectButtons.Visibility = Visibility.Collapsed;
-            CanvasSizeButtons.Visibility = Visibility.Visible;
-            Title.Text = "Select Desired Platform";
+            PreloadTemplateDialog templateDialog = new PreloadTemplateDialog();
+            await templateDialog.ShowAsync();
+            var template = templateDialog.template;
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, template));
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
@@ -57,31 +59,8 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, CanvasSize.Hub));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, TemplateChoice.None));
             }
-        }
-
-        private void OnBackClick(object sender, RoutedEventArgs e)
-        {
-            ProjectButtons.Visibility = Visibility.Visible;
-            CanvasSizeButtons.Visibility = Visibility.Collapsed;
-            Title.Text = "Welcome to Protocol";
-        }
-
-        private void OnMobileSizeClick(object sender, RoutedEventArgs e)
-        {
-            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Mobile));
-        }
-
-        private void OnDesktopSizeClick(object sender, RoutedEventArgs e)
-        {
-            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Desktop));
-        }
-
-        private void OnHubSizeClick(object sender, RoutedEventArgs e)
-        {
-            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, CanvasSize.Hub));
         }
     }
 }
