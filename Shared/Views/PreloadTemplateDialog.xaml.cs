@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shared.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace Shared.Views
 {
     public sealed partial class PreloadTemplateDialog : ContentDialog
     {
+        public TemplateChoice template { get; set; }
+
         public PreloadTemplateDialog()
         {
             this.InitializeComponent();
@@ -28,16 +31,17 @@ namespace Shared.Views
         {
             if (none.IsChecked == true)
             {
-
+                template = TemplateChoice.None;
             }
             else if (mobile.IsChecked == true)
             {
-
+                template = TemplateChoice.MobYY;
             }
             else if (browser.IsChecked == true)
             {
-
+                template = TemplateChoice.Browser;
             }
+            preloadTemplateDialog.Hide();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

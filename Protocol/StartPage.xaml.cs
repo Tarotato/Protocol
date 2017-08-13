@@ -24,10 +24,12 @@ namespace Protocol
             this.InitializeComponent();
         }
 
-        private void OnNewProjectClick(object sender, RoutedEventArgs e)
+        private async void OnNewProjectClick(object sender, RoutedEventArgs e)
         {
-            var templateDialog = new PreloadTemplateDialog();
-            templateDialog.ShowAsync();
+            PreloadTemplateDialog templateDialog = new PreloadTemplateDialog();
+            await templateDialog.ShowAsync();
+            var template = templateDialog.template;
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, template));
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
@@ -57,7 +59,7 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, MainCanvasParams.Template.None));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, TemplateChoice.None));
             }
         }
     }

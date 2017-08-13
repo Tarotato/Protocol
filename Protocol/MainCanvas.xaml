@@ -69,7 +69,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,30,0,20">
                         <TextBlock Text="Templates" FontSize="22" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,170,0"/>
-                        <ToggleSwitch HorizontalAlignment="Right" Foreground="WhiteSmoke" Toggled="ToggleSwitch_Toggled"/>
+                        <ToggleSwitch x:Name="templateToggle" HorizontalAlignment="Right" Foreground="WhiteSmoke" Toggled="ToggleSwitch_Toggled"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="browserTemplate1" 

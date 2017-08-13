@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Shared.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Windows.UI;
 using Windows.UI.Xaml;
-using static Protocol.MainCanvas;
 
 namespace Shared.Utils
 {

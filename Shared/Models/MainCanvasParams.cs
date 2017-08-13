@@ -8,10 +8,9 @@ namespace Shared.Models
     {
         public List<InkStrokeContainer> strokes;
         public StorageFolder folder;
-        public enum Template { None, Mobile, Browser };
-        public Template template;
+        public TemplateChoice template;
 
-        public MainCanvasParams(List<InkStrokeContainer> MCStrokes, StorageFolder MCFolder, Template chosenTemplate)
+        public MainCanvasParams(List<InkStrokeContainer> MCStrokes, StorageFolder MCFolder, TemplateChoice chosenTemplate)
         {
             strokes = MCStrokes;
             folder = MCFolder;

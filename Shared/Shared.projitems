@@ -13,6 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Models\CanvasComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\TemplateChoice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ProjectMetaData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MainCanvasParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Save.cs" />

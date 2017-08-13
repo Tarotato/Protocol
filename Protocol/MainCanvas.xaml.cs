@@ -39,7 +39,6 @@ namespace Protocol
         Symbol NewIcon = (Symbol)0xE8E5;
         Symbol SettingsIcon = (Symbol)0xE713;
         
-        public enum TemplateChoice { Browser, MobYX, MobXX, MobYY, None }
         private TemplateChoice templateChoice = TemplateChoice.None;
 
         public MainCanvas()
@@ -57,6 +56,22 @@ namespace Protocol
             viewModel.ShowFlyoutAboveToolbar += ShowFlyout;
             viewModel.AddShapeToCanvas += AddShapeToRecognitionCanvas;
             viewModel.RemoveShapeFromCanvas += RemoveShapeFromRecognitionCanvas;
+
+            templateChoice = parameters.template;
+            if (templateChoice == TemplateChoice.Browser)
+            {
+                BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/browser.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+                templateToggle.IsOn = true;
+            }
+            else if (templateChoice == TemplateChoice.MobYY)
+            {
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYY.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+                templateToggle.IsOn = true;
+            }
         }
 
         private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
@@ -215,7 +230,7 @@ namespace Protocol
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, MainCanvasParams.Template.None));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None));
             }
         }
 
