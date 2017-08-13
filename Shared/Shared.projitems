@@ -13,12 +13,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Models\CanvasComponent.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\CanvasSize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ProjectMetaData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MainCanvasParams.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\Save.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\ShapeRecognitionUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\MainCanvasViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\PreloadTemplateDialog.xaml.cs">
+      <DependentUpon>PreloadTemplateDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml.cs">
       <DependentUpon>SaveDialog.xaml</DependentUpon>
     </Compile>
@@ -30,6 +32,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Views\PreloadTemplateDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="$(MSBuildThisFileDirectory)Views\SaveDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

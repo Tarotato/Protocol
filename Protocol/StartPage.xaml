@@ -28,37 +28,6 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            
-            <!--Canvas size options, shown when new project is selected-->
-            <StackPanel x:Name="CanvasSizeButtons" Visibility="Collapsed"  Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Click="OnBackClick" Margin="12" Width="160">
-                    <StackPanel>
-                        <TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE830;" FontSize="30" Margin="22" />
-                        <TextBlock Text="Back to Main" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
-                    </StackPanel>
-                </Button>
-
-                <Button x:Name="Mobile" Click="OnMobileSizeClick" Margin="12" Width="160">
-                    <StackPanel>
-                        <TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE8EA;" FontSize="30" Margin="22" />
-                        <TextBlock Text="Mobile" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
-                    </StackPanel>
-                </Button>
-
-                <Button x:Name="Desktop" Click="OnDesktopSizeClick" Margin="12" Width="160">
-                    <StackPanel>
-                        <TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE7F8;" FontSize="30" Margin="22" />
-                        <TextBlock Text="Desktop" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button x:Name="Hub" Click="OnHubSizeClick" Margin="12" Width="160">
-                    <StackPanel>
-                        <TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE7FB;" FontSize="30" Margin="22" />
-                        <TextBlock Text="Hub" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
         </StackPanel>
         
     </Grid>

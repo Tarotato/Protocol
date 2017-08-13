@@ -112,22 +112,18 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition x:Name="leftPanel" Width="0"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition x:Name="rightPanel" Width="0"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Row="0" Grid.Column="0" Background="LightGray"/>
-                <Grid Grid.Row="0" Grid.Column="1">
+                <Grid >
                     <Image x:Name="bgTemplate" Source="/Assets/Browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <Canvas x:Name="recognitionCanvas"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
-                <Grid Grid.Row="0" Grid.Column="2" Background="LightGray"/>
 
-                <Grid Grid.ColumnSpan="3">
+                <Grid>
                     <InkToolbar x:Name="inkToolbar"
                     VerticalAlignment="Bottom"
                     TargetInkCanvas="{x:Bind inkCanvas}" 

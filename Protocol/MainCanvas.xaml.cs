@@ -31,7 +31,6 @@ namespace Protocol
         private enum GridType { None, Fine, Medium, Large };
         private GridType currentGridType = GridType.None;
 
-        Symbol ShapeIcon = (Symbol)0xE15B;
         Symbol ToShapeIcon = (Symbol)0xE97B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
         Symbol ExportIcon = (Symbol)0xE158;
@@ -58,14 +57,6 @@ namespace Protocol
             viewModel.ShowFlyoutAboveToolbar += ShowFlyout;
             viewModel.AddShapeToCanvas += AddShapeToRecognitionCanvas;
             viewModel.RemoveShapeFromCanvas += RemoveShapeFromRecognitionCanvas;
-
-            if (parameters.size == CanvasSize.Mobile)
-            {
-                leftPanel.Width = new GridLength(1, GridUnitType.Star);
-                rightPanel.Width = new GridLength(1, GridUnitType.Star);
-                inkCanvas.MinWidth = 607.5;
-                drawingCanvas.MinWidth = 607.5;
-            }
         }
 
         private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
@@ -224,7 +215,7 @@ namespace Protocol
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, CanvasSize.Hub));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, MainCanvasParams.Template.None));
             }
         }
 
