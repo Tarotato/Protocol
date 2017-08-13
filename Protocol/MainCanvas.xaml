@@ -79,7 +79,7 @@
                                 Background="#0175BF"
                                 Foreground="White"
                                 IsEnabled="False">
-                            <SymbolIcon Symbol="{x:Bind NewIcon}"/>
+                            <SymbolIcon Symbol="{x:Bind WebIcon}"/>
                         </Button>
                         <Button x:Name="browserTemplate2" Background="Transparent" Click="BrowserTemplate_Click" IsEnabled="False">
                             <TextBlock x:Name="browserTemplateText" Text="Browser / Web" FontSize="16" VerticalAlignment="Center" Foreground="DarkGray" Margin="10,0,0,6"/>
@@ -94,7 +94,7 @@
                                 Background="#0175BF"
                                 Foreground="White"
                                 IsEnabled="False">
-                            <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
+                            <SymbolIcon Symbol="{x:Bind MobileIcon}"/>
                         </Button>
                         <Button x:Name="mobileTemplate2" Background="Transparent" Click="MobileTemplate_Click" IsEnabled="False">
                             <TextBlock x:Name="mobileTemplateText" Text="Mobile" FontSize="16" Foreground="DarkGray" Margin="10,0,0,6"/>

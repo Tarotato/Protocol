@@ -38,7 +38,9 @@ namespace Protocol
         Symbol OpenIcon = (Symbol)0xED43;
         Symbol NewIcon = (Symbol)0xE8E5;
         Symbol SettingsIcon = (Symbol)0xE713;
-        
+        Symbol MobileIcon = (Symbol)0xE8EA;
+        Symbol WebIcon = (Symbol)0xE774;
+
         private TemplateChoice templateChoice = TemplateChoice.None;
 
         public MainCanvas()
