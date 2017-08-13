@@ -60,17 +60,17 @@ namespace Protocol
             templateChoice = parameters.template;
             if (templateChoice == TemplateChoice.Browser)
             {
+                templateToggle.IsOn = true;
                 BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/browser.png", UriKind.Absolute));
                 bgTemplate.Source = bm;
                 bgTemplate.Visibility = Visibility.Visible;
-                templateToggle.IsOn = true;
             }
             else if (templateChoice == TemplateChoice.MobYY)
             {
+                templateToggle.IsOn = true;
                 BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYY.png", UriKind.Absolute));
                 bgTemplate.Source = bm;
                 bgTemplate.Visibility = Visibility.Visible;
-                templateToggle.IsOn = true;
             }
         }
 
