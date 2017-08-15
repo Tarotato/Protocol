@@ -116,7 +116,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid >
-                    <Image x:Name="bgTemplate" Source="/Assets/Browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
+                    <Image x:Name="bgTemplate" Source="/Assets/browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <Canvas x:Name="recognitionCanvas"/>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>

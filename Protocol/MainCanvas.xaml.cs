@@ -346,8 +346,7 @@ namespace Protocol
                 mobileTemplate1.IsEnabled = true;
                 mobileTemplate2.IsEnabled = true;
                 mobileTemplateText.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
-            }
-            
+            }            
         }
     }
 }
