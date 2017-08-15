@@ -18,13 +18,13 @@
             </TextBlock>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <RadioButton x:Name="rdYX">
-                    <Image Height="100" Width="100" Source="/Assets/mobYXLogo.png"/> 
+                    <Image Height="100" Width="100" Source="/Assets/MobYXLogo.png"/> 
                 </RadioButton>
                 <RadioButton x:Name="rdYY">
-                    <Image Height="100" Width="100" Source="/Assets/mobYYLogo.png"/>
+                    <Image Height="100" Width="100" Source="/Assets/MobYYLogo.png"/>
                 </RadioButton>
                 <RadioButton x:Name="rdXX">
-                    <Image Height="100" Width="100" Source="/Assets/mobXXLogo.png"/>
+                    <Image Height="100" Width="100" Source="/Assets/MobXXLogo.png"/>
                 </RadioButton>
             </StackPanel>
 

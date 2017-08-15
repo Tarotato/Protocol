@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI;
@@ -25,21 +23,15 @@ namespace Shared.Utils
     {
         public delegate void ChangedEventHandler(String message);
         public event ChangedEventHandler ShowFlyoutAboveInkToolbar;
-
-        public async void SaveAsImage(double width, double height, List<InkStrokeContainer> _strokes)
+        public async void SaveAsImage(double width, double height, List<InkStrokeContainer> _strokes, ProjectMetaData metaData)
         {
-            // Set up and launch the Save Picker
-            //FileSavePicker fileSavePicker = new FileSavePicker();
-            //fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
-            //fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
-            //var InstallationFolder = Windows.ApplicationModel.Package.Current.InstalledLocation.CreateFolderAsync(@"Assets\ProfilePictures", CreationCollisionOption.OpenIfExists);
-            //StorageFile file = await fileSavePicker.PickSaveFileAsync();
+            //Create a temporary file of the image so it can be merged with the template
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
             var file = await pictureFolder.CreateFileAsync("tempImage.jpeg", CreationCollisionOption.ReplaceExisting);
 
             if (file != null)
             {
-                // At this point, the app can begin writing to the provided save file
+                //Write to the provided save file
                 CanvasDevice device = CanvasDevice.GetSharedDevice();
                 CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
 
@@ -54,75 +46,78 @@ namespace Shared.Utils
 
                 using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
-                    if (file.FileType.Equals(".jpeg"))
-                    {
-                        await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);
-                        ShowFlyoutAboveInkToolbar?.Invoke("Image Saved");
-                    }
-                    else
-                    {
-                        await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
-                        ShowFlyoutAboveInkToolbar?.Invoke("Image Saved");
-                    }
+                    await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);                    
                 }
-            var bitmap = new WriteableBitmap(1, 1);
-            var savedfiles = await pictureFolder.GetFilesAsync();
-             BitmapImage bitmapImage = new BitmapImage();
-            WriteableBitmap w;
-            foreach (var imageFile in savedfiles)
-            {
-                if (imageFile.Name.StartsWith("tempImage"))
+
+                //Load image as BitmapImage then convert to WriteableBitmap
+                BitmapImage bitmapImage = new BitmapImage();
+                WriteableBitmap w;
+                var savedfiles = await pictureFolder.GetFilesAsync();
+                foreach (var imageFile in savedfiles)
                 {
-                    using (IRandomAccessStream fileStream = await imageFile.OpenAsync(FileAccessMode.Read))
+                    if (imageFile.Name.StartsWith("tempImage"))
                     {
-                        bitmapImage.DecodePixelHeight = 100;
-                        bitmapImage.DecodePixelWidth = 100;
-                        await bitmapImage.SetSourceAsync(fileStream);                        
-                    }
+                        //Create BitmapImage
+                        using (IRandomAccessStream fileStream = await imageFile.OpenAsync(FileAccessMode.Read))
+                        {
+                            bitmapImage.DecodePixelHeight = 100;
+                            bitmapImage.DecodePixelWidth = 100;
+                            await bitmapImage.SetSourceAsync(fileStream);                        
+                        }
 
-                    int h = bitmapImage.PixelHeight;
-                    int wd = bitmapImage.PixelWidth;
-
-                    using (var stream = await file.OpenReadAsync())
-                    {
-                        w = new WriteableBitmap(wd, h);
-                        await w.SetSourceAsync(stream);
-                        //Other code
-                    thingAsync(w);
+                        int h = bitmapImage.PixelHeight;
+                        int wd = bitmapImage.PixelWidth;
+                        //Create WriteableBitmap
+                        using (var stream = await file.OpenReadAsync())
+                        {
+                            w = new WriteableBitmap(wd, h);
+                            await w.SetSourceAsync(stream);
+                            //Merge image with template selected
+                            SaveImageFile(await MergeImages(w, metaData));
+                        }
                     }
                 }
             }
-            }
-
         }
 
-        private async void thingAsync(WriteableBitmap wBitmap)
+        private async Task<WriteableBitmap> MergeImages(WriteableBitmap originalImage, ProjectMetaData metaData)
         {
+            if (metaData.templateVisibility == Visibility.Collapsed)
+                return originalImage;
+
+            //Merge image with template if visible
             var writeableBmp = new WriteableBitmap(1, 1);
+            var mergedImage = originalImage;
+            var templateImage = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/{metaData.templateChoice.ToString()}.png"));
 
-            var image1 = wBitmap;
-            var image2 = await writeableBmp.FromContent(new Uri("ms-appx:///Assets/browser.png"));
+            mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), templateImage, new Rect(0, 0, templateImage.PixelWidth, templateImage.PixelHeight));
 
-            image1.Blit(new Rect(0, 0, image1.PixelWidth, image1.PixelHeight), image2, new Rect(0, 0, image2.PixelWidth, image2.PixelHeight));
+            return mergedImage;
+        }
 
-            // Save the writeableBitmap object to JPG Image file 
-            FileSavePicker picker = new FileSavePicker();
-            picker.FileTypeChoices.Add("JPG File", new List<string>() { ".jpg" });
-            StorageFile savefile = await picker.PickSaveFileAsync();
+        private async void SaveImageFile(WriteableBitmap finalImage)
+        {
+            // Set up and launch the Save Picker
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
+            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
+            StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
             if (savefile == null)
                 return;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
             BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
+
             // Get pixels of the WriteableBitmap object 
-            Stream pixelStream = image1.PixelBuffer.AsStream();
+            Stream pixelStream = finalImage.PixelBuffer.AsStream();
             byte[] pixels = new byte[pixelStream.Length];
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+
             // Save the image file with jpg extension 
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)image1.PixelWidth, (uint)image1.PixelHeight, 96.0, 96.0, pixels);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)finalImage.PixelWidth, (uint)finalImage.PixelHeight, 96.0, 96.0, pixels);
             await encoder.FlushAsync();
 
+            ShowFlyoutAboveInkToolbar?.Invoke("Image Saved");
         }
-
         public async Task<StorageFolder> SaveProject(StorageFolder storageFolder, List<InkStrokeContainer> strokes, ProjectMetaData metaData)
         {
             //Use existing folder
@@ -214,7 +209,7 @@ namespace Shared.Utils
                 // We'll add more code here in the next step.
                 using (var dataWriter = new DataWriter(outputStream))
                 {
-                    dataWriter.WriteString($"Template Visible: {metaData.templateVisibility.ToString()}");
+                    dataWriter.WriteString($"Template Visible: {metaData.templateVisibility.ToString()}\n");
                     dataWriter.WriteString($"Template Choice: {metaData.templateChoice.ToString()}");
                     await dataWriter.StoreAsync();
                     await outputStream.FlushAsync();

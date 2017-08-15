@@ -253,9 +253,9 @@ namespace Protocol
             _isErasing = false;
         }
 
-        public void SaveAsImage(double width, double height)
+        public void SaveAsImage(double width, double height, ProjectMetaData metaData)
         {
-            save.SaveAsImage(width, height, _strokes);
+            save.SaveAsImage(width, height, _strokes, metaData);
         }
 
         public async Task<bool> SaveProject(ProjectMetaData metaData)

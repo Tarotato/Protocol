@@ -208,7 +208,7 @@ namespace Protocol
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.SaveAsImage(inkCanvas.ActualWidth, inkCanvas.ActualHeight);
+            viewModel.SaveAsImage(inkCanvas.ActualWidth, inkCanvas.ActualHeight, new ProjectMetaData(bgTemplate.Visibility, templateChoice));
         }
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -316,8 +316,7 @@ namespace Protocol
         {
             TemplateDialog td = new TemplateDialog();
             await td.ShowAsync();
-            var orientation = td.name;
-            BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mob{orientation}.png", UriKind.Absolute));
+            BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/{td.templateChoice.ToString()}.png", UriKind.Absolute));
             bgTemplate.Source = bm;
 
             //Update template

@@ -20,7 +20,6 @@ namespace Shared.Views
 {
     public sealed partial class TemplateDialog : ContentDialog
     {
-        public string name { get; set; }
         public TemplateChoice templateChoice = TemplateChoice.None;
 
         public TemplateDialog()
@@ -32,17 +31,14 @@ namespace Shared.Views
         {
             if (rdYX.IsChecked == true)
             {
-                name = "YX";
                 templateChoice = TemplateChoice.MobYX;
             }
             else if (rdXX.IsChecked == true)
             {
-                name = "XX";
                 templateChoice = TemplateChoice.MobXX;
             }
             else if (rdYY.IsChecked == true)
             {
-                name = "YY";
                 templateChoice = TemplateChoice.MobYY;
             }
             templateDialog.Hide();
