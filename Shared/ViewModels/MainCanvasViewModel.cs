@@ -260,7 +260,7 @@ namespace Protocol
 
         public async Task<bool> SaveProject(ProjectMetaData metaData)
         {
-            var savedFolder = await save.SaveProject(_storageFolder, _strokes, metaData);
+            var savedFolder = await save.SaveProject(_storageFolder, _strokes, metaData, components);
             if(savedFolder != null)
             {
                 _storageFolder = savedFolder;
@@ -270,12 +270,12 @@ namespace Protocol
 
         public async Task<MainCanvasParams> OpenExistingProject(ProjectMetaData metaData)
         {
-            return await save.OpenProject(_strokes, _storageFolder, metaData);
+            return await save.OpenProject(_strokes, _storageFolder, metaData, components);
         }
 
         public async Task<ContentDialogResult> OpenNewProject(ProjectMetaData metaData)
         {
-            return await save.ConfirmSave(_strokes, _storageFolder, metaData);
+            return await save.ConfirmSave(_strokes, _storageFolder, metaData, components);
         }
     }
 }
