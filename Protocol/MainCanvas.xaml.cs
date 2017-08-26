@@ -232,7 +232,7 @@ namespace Protocol
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None, new List<CanvasComponent>()));
             }
         }
 

@@ -205,7 +205,7 @@ namespace Shared.Utils
 
         private async void SaveMetaData(ProjectMetaData metaData, StorageFolder storageFolder)
         {
-            var file = await storageFolder.CreateFileAsync($"{storageFolder.Name}Protocol.txt", CreationCollisionOption.ReplaceExisting);
+            var file = await storageFolder.CreateFileAsync("metadata.txt", CreationCollisionOption.ReplaceExisting);
             var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
             using (var outputStream = stream.GetOutputStreamAt(0))
             {
@@ -223,15 +223,13 @@ namespace Shared.Utils
 
         private async void SaveCanvasComponents(List<CanvasComponent> components,StorageFolder storageFolder)
         {
-            var file = await storageFolder.CreateFileAsync($"{storageFolder.Name}XMLComponents.txt", CreationCollisionOption.ReplaceExisting);
+            var file = await storageFolder.CreateFileAsync("components.txt", CreationCollisionOption.ReplaceExisting);
             var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
             using (var outputStream = stream.GetOutputStreamAt(0))
             {
                 // We'll add more code here in the next step.
                 using (var dataWriter = new DataWriter(outputStream))
                 {
-                    //dataWriter.WriteString($"Template Visible: {metaData.templateVisibility.ToString()}\n");
-                    //dataWriter.WriteString($"Template Choice: {metaData.templateChoice.ToString()}");
                     foreach (CanvasComponent component in components)
                     {
                         dataWriter.WriteString($"{Serializer.Serialize(component)}\n");
@@ -286,7 +284,7 @@ namespace Shared.Utils
                 var result = await ConfirmSave(currentStrokes, currentFolder, metaData, components);
                 if (result != ContentDialogResult.None)
                 {
-                    return new MainCanvasParams(newStrokes, newFolder, TemplateChoice.None);
+                    return new MainCanvasParams(newStrokes, newFolder, TemplateChoice.None, components);
                 }
             }
             return null;

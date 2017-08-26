@@ -40,10 +40,10 @@ namespace Shared.Utils
             component.a = ellipse.Width / 2.0;
             component.b = ellipse.Height / 2.0;
             component.rotAngle = rotAngle;
-            // var point = new Point(shape.Center.X - ellipse.Width / 2.0, shape.Center.Y - ellipse.Height / 2.0);
-            var point = new Point(shape.Center.X, shape.Center.Y);
 
+            var point = new Point(shape.Center.X, shape.Center.Y);
             component.center = point;
+
             component.shape = ellipse;
 
             return component;
@@ -85,6 +85,46 @@ namespace Shared.Utils
             }
 
             return startValue ^ finishValue; // xor means line started outside, ended inside (vice versa)
+        }
+
+        internal List<Shape> BuildComponents(List<CanvasComponent> components)
+        {
+            List<Shape> shapes = new List<Shape>();
+            foreach (CanvasComponent component in components)
+            {
+                if (component.type == CanvasComponent.ComponentType.Ellipse)
+                {
+                    Ellipse e = BuildEllipseFromComponent(component);
+                    component.shape = e;
+                    shapes.Add(e);
+                }
+                else if (component.type == CanvasComponent.ComponentType.Polygon)
+                {
+                    Polygon p = BuildPolygonFromComponent(component);
+                    component.shape = p;
+                    shapes.Add(p);
+                }
+            }
+
+            return shapes;
+        }
+
+        private Ellipse BuildEllipseFromComponent(CanvasComponent component) 
+        {
+            Ellipse ellipse = new Ellipse();
+
+            //TODO math
+
+            return ellipse;
+        }
+
+        private Polygon BuildPolygonFromComponent(CanvasComponent component)
+        {
+            Polygon polygon = new Polygon();
+
+            //TODO math
+
+            return polygon;
         }
 
         private bool PointInPolygon(Point point, List<Point> polygon)

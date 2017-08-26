@@ -47,8 +47,18 @@ namespace Protocol
         {
             _strokes = parameters.strokes;
             _storageFolder = parameters.folder;
+            components = parameters.components;
+            LoadShapes();
 
             save.ShowFlyoutAboveInkToolbar += ShowFlyout;
+        }
+
+        private void LoadShapes()
+        {
+            foreach (Shape shape in shapeHelper.BuildComponents(components))
+            {
+
+            }
         }
 
         internal void ShowFlyout(string message)

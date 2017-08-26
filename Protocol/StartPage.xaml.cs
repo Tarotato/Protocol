@@ -1,7 +1,10 @@
 ﻿using Shared.Models;
+using Shared.Utils;
 using Shared.Views;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
@@ -16,11 +19,11 @@ namespace Protocol
     /// </summary>
     public sealed partial class StartPage : Page
     {
-        private List<InkStrokeContainer> strokes;
+        private List<InkStrokeContainer> strokes = new List<InkStrokeContainer>();
+        private List<CanvasComponent> components = new List<CanvasComponent>();
 
         public StartPage()
         {
-            strokes = new List<InkStrokeContainer>();
             this.InitializeComponent();
         }
 
@@ -29,7 +32,7 @@ namespace Protocol
             PreloadTemplateDialog templateDialog = new PreloadTemplateDialog();
             await templateDialog.ShowAsync();
             var template = templateDialog.template;
-            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, template));
+            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, template, components));
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
@@ -39,12 +42,32 @@ namespace Protocol
             folderPicker.FileTypeFilter.Add("*");
 
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
+            var projectName = folder.DisplayName;
             if (folder != null)
             {
                 IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
                 foreach (var f in files)
                 {
-                    if (f != null && f.FileType.Equals(".gif"))
+                    if (f.Name.Equals("metadata.txt"))
+                    {
+                        // read file load template
+                    }
+                    else if (f.Name.Equals("components.txt"))
+                    {
+                        // read file load shapes
+                        string text = await FileIO.ReadTextAsync(f);
+                        string[] xmlComponents = text.Split('\n');
+                        
+                        foreach (string component in xmlComponents)
+                        {
+                            if (component.Length > 0)
+                            {
+                                components.Add(Serializer.Deserialize<CanvasComponent>(component));
+                            }
+                        }
+
+                    }
+                    else if(f != null && f.FileType.Equals(".gif"))
                     {
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
@@ -59,7 +82,7 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, TemplateChoice.None));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, TemplateChoice.None, components));
             }
         }
     }
