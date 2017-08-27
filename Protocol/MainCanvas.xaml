@@ -100,6 +100,24 @@
                             <TextBlock x:Name="mobileTemplateText" Text="Mobile" FontSize="16" Foreground="DarkGray" Margin="10,0,0,6"/>
                         </Button>
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,30,0,20">
+                        <TextBlock Text="Background" FontSize="22" FontWeight="SemiLight" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,170,0"/>
+                        <ToggleSwitch x:Name="backgroundToggle" HorizontalAlignment="Right" Foreground="WhiteSmoke" Toggled="BackgroundToggle_Toggled"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="importBackground1" 
+                                Click="ImportBackground_Click" 
+                                Width="40" 
+                                Height="40" 
+                                Background="#0175BF"
+                                Foreground="White"
+                                IsEnabled="False">
+                            <SymbolIcon Symbol="{x:Bind WebIcon}"/>
+                        </Button>
+                        <Button x:Name="importBackground2" Background="Transparent" Click="ImportBackground_Click" IsEnabled="True">
+                            <TextBlock x:Name="importBackgroundText" Text="Import" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
             <!-- Navigation Pane End-->
@@ -116,6 +134,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid >
+                    <Image x:Name="bgImage" Source="/Assets/browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgTemplate" Source="/Assets/browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <Canvas x:Name="recognitionCanvas"/>

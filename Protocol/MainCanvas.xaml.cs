@@ -16,6 +16,10 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI;
 using Shared.Views;
+using Windows.Storage.Pickers;
+using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.Graphics.Imaging;
 
 namespace Protocol
 {
@@ -42,6 +46,7 @@ namespace Protocol
         Symbol WebIcon = (Symbol)0xE774;
 
         private TemplateChoice templateChoice = TemplateChoice.None;
+        private WriteableBitmap backgroundImage = null;
 
         public MainCanvas()
         {
@@ -208,7 +213,7 @@ namespace Protocol
 
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.SaveAsImage(inkCanvas.ActualWidth, inkCanvas.ActualHeight, new ProjectMetaData(bgTemplate.Visibility, templateChoice));
+            viewModel.SaveAsImage(inkCanvas.ActualWidth, inkCanvas.ActualHeight, new ProjectMetaData(bgTemplate.Visibility, templateChoice, bgImage.Visibility, backgroundImage), recognitionCanvas);
         }
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -350,6 +355,44 @@ namespace Protocol
             if (templateChoice == TemplateChoice.None)
             {
                 templateChoice = TemplateChoice.Browser;
+            }
+        }
+
+        private void BackgroundToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (bgImage.Visibility == Visibility.Visible)
+            {
+                bgImage.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                bgImage.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async void ImportBackground_Click(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker open = new FileOpenPicker();
+            open.FileTypeFilter.Add(".jpg");
+            open.FileTypeFilter.Add(".jpeg");
+            open.FileTypeFilter.Add(".png");
+
+            // Open a stream for the selected file 
+            StorageFile file = await open.PickSingleFileAsync();
+
+            // Ensure a file was selected 
+            if (file != null)
+            {
+                using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read))
+                {
+                    BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+                    WriteableBitmap bmp = new WriteableBitmap((int)decoder.PixelWidth, (int)decoder.PixelHeight);
+                    bmp.SetSource(stream);
+
+                    // show the image in the UI if you want.
+                    bgImage.Source = bmp;
+                    backgroundImage = bmp;
+                }
             }
         }
     }

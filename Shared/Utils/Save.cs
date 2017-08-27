@@ -23,11 +23,13 @@ namespace Shared.Utils
     {
         public delegate void ChangedEventHandler(String message);
         public event ChangedEventHandler ShowFlyoutAboveInkToolbar;
-        public async void SaveAsImage(double width, double height, List<InkStrokeContainer> _strokes, ProjectMetaData metaData)
+        public async void SaveAsImage(double width, double height, List<InkStrokeContainer> _strokes, ProjectMetaData metaData, Canvas recognitionCanvas)
         {
+
+            WriteableBitmap wb = await SaveRecognitionCanvas(recognitionCanvas);
             //Create a temporary file of the image so it can be merged with the template
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
-            var file = await pictureFolder.CreateFileAsync("tempImage.jpeg", CreationCollisionOption.ReplaceExisting);
+            var file = await pictureFolder.CreateFileAsync("tempImage.png", CreationCollisionOption.ReplaceExisting);
 
             if (file != null)
             {
@@ -46,7 +48,7 @@ namespace Shared.Utils
 
                 using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
-                    await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Jpeg, 1f);                    
+                    await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
                 }
 
                 //Load image as BitmapImage then convert to WriteableBitmap
@@ -62,7 +64,7 @@ namespace Shared.Utils
                         {
                             bitmapImage.DecodePixelHeight = 100;
                             bitmapImage.DecodePixelWidth = 100;
-                            await bitmapImage.SetSourceAsync(fileStream);                        
+                            await bitmapImage.SetSourceAsync(fileStream);
                         }
 
                         int h = bitmapImage.PixelHeight;
@@ -73,24 +75,64 @@ namespace Shared.Utils
                             w = new WriteableBitmap(wd, h);
                             await w.SetSourceAsync(stream);
                             //Merge image with template selected
-                            SaveImageFile(await MergeImages(w, metaData));
+                            SaveImageFile(await MergeImages(w, wb));                            
                         }
                     }
                 }
             }
         }
 
-        private async Task<WriteableBitmap> MergeImages(WriteableBitmap originalImage, ProjectMetaData metaData)
+        private async Task<WriteableBitmap> SaveRecognitionCanvas(Canvas canvas)
         {
-            if (metaData.templateVisibility == Visibility.Collapsed)
-                return originalImage;
+            // Set up and launch the Save Picker
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
+            StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
+            if (savefile == null)
+                return null;
+            IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
+
+            RenderTargetBitmap renderBitmap = new RenderTargetBitmap();
+            // needed otherwise the image output is black
+            canvas.Measure(new Size((int)canvas.ActualWidth, (int)canvas.ActualHeight));
+            canvas.Arrange(new Rect(0,0, (int)canvas.ActualWidth, (int)canvas.ActualHeight));
+
+            await renderBitmap.RenderAsync(canvas, (int)canvas.ActualWidth, (int)canvas.ActualHeight);
+            IBuffer x = await renderBitmap.GetPixelsAsync();
+
+            //Write the image pixels to a bitmap
+            WriteableBitmap wb = new WriteableBitmap((int)canvas.ActualWidth, (int)canvas.ActualHeight);
+            using (Stream str = wb.PixelBuffer.AsStream())
+            {
+                await str.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 0, (int)x.Length);
+            }
+
+            Stream pixelStream = wb.PixelBuffer.AsStream();
+            byte[] pixels = new byte[pixelStream.Length];
+            await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+
+            // Save the image file with jpg extension 
+            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)wb.PixelWidth, (uint)wb.PixelHeight, 96.0, 96.0, pixels);
+            await encoder.FlushAsync();
+
+            return wb;
+        }    
+
+        private async Task<WriteableBitmap> MergeImages(WriteableBitmap originalImage, WriteableBitmap shapes)
+        {
+            //if (metaData.templateVisibility == Visibility.Collapsed)
+            //    return originalImage;
 
             //Merge image with template if visible
             var writeableBmp = new WriteableBitmap(1, 1);
             var mergedImage = originalImage;
-            var templateImage = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/{metaData.templateChoice.ToString()}.png"));
+            //var templateImage = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/{metaData.templateChoice.ToString()}.png"));
+            //var background = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/DefaultBackground.png"));
 
-            mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), templateImage, new Rect(0, 0, templateImage.PixelWidth, templateImage.PixelHeight));
+            //background.Blit(new Rect(0, 0, background.PixelWidth, background.PixelHeight), templateImage, new Rect(0, 0, templateImage.PixelWidth, templateImage.PixelHeight));
+            mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), shapes, new Rect(0, 0, shapes.PixelWidth, shapes.PixelHeight));
+            //shapes.Blit(new Rect(0, 0, shapes.PixelWidth, shapes.PixelHeight), mergedImage, new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight));
 
             return mergedImage;
         }
@@ -99,13 +141,12 @@ namespace Shared.Utils
         {
             // Set up and launch the Save Picker
             FileSavePicker fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("JPEG", new string[] { ".jpeg" });
             fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
             StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
             if (savefile == null)
                 return;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
-            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
+            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
 
             // Get pixels of the WriteableBitmap object 
             Stream pixelStream = finalImage.PixelBuffer.AsStream();
@@ -118,6 +159,7 @@ namespace Shared.Utils
 
             ShowFlyoutAboveInkToolbar?.Invoke("Image Saved");
         }
+
         public async Task<StorageFolder> SaveProject(StorageFolder storageFolder, List<InkStrokeContainer> strokes, ProjectMetaData metaData)
         {
             //Use existing folder
