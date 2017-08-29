@@ -94,8 +94,16 @@ namespace Protocol
             inkPresenter.UnprocessedInput.PointerPressed += UnprocessedInput_PointerPressed;
 
             SetUpEraseAll();
+
+            recognitionCanvas.Loaded += recognitionCanvas_Loaded;
         }
-        
+
+        private void recognitionCanvas_Loaded(object sender, RoutedEventArgs e)
+        {
+            viewModel.LoadShapes();
+            recognitionCanvas.Visibility = Visibility.Visible;
+        }
+
         private void SetUpEraseAll() {
             var eraser = inkToolbar.GetToolButton(InkToolbarTool.Eraser) as InkToolbarEraserButton;
 
@@ -140,6 +148,7 @@ namespace Protocol
         private void AddShapeToRecognitionCanvas(Shape shape)
         {
             recognitionCanvas.Children.Add(shape);
+            var what = recognitionCanvas.Children.Count;
             drawingCanvas.Invalidate();
         }
 

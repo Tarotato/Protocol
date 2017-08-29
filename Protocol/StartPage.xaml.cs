@@ -37,6 +37,7 @@ namespace Protocol
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
         {
+            TemplateChoice templateChoice = TemplateChoice.None;
             //Let the user pick a project folder to open
             FolderPicker folderPicker = new FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
@@ -50,7 +51,8 @@ namespace Protocol
                 {
                     if (f.Name.Equals("metadata.txt"))
                     {
-                        // read file load template
+                        string text = await FileIO.ReadTextAsync(f);
+                        templateChoice = (TemplateChoice) Enum.Parse(typeof(TemplateChoice), text);
                     }
                     else if (f.Name.Equals("components.txt"))
                     {
@@ -82,7 +84,7 @@ namespace Protocol
                         stream.Dispose();
                     }
                 }
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, TemplateChoice.None, components));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, folder, templateChoice, components));
             }
         }
     }

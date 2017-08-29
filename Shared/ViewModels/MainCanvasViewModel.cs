@@ -12,6 +12,7 @@ using Shared.Utils;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Media;
+using Windows.UI;
 
 namespace Protocol
 {
@@ -48,16 +49,17 @@ namespace Protocol
             _strokes = parameters.strokes;
             _storageFolder = parameters.folder;
             components = parameters.components;
-            LoadShapes();
 
             save.ShowFlyoutAboveInkToolbar += ShowFlyout;
         }
 
-        private void LoadShapes()
+        internal void LoadShapes()
         {
             foreach (Shape shape in shapeHelper.BuildComponents(components))
             {
-
+                shape.Stroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 255));
+                shape.StrokeThickness = 3;
+                AddShapeToCanvas?.Invoke(shape);
             }
         }
 

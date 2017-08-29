@@ -95,13 +95,11 @@ namespace Shared.Utils
                 if (component.type == CanvasComponent.ComponentType.Ellipse)
                 {
                     Ellipse e = BuildEllipseFromComponent(component);
-                    component.shape = e;
                     shapes.Add(e);
                 }
                 else if (component.type == CanvasComponent.ComponentType.Polygon)
                 {
                     Polygon p = BuildPolygonFromComponent(component);
-                    component.shape = p;
                     shapes.Add(p);
                 }
             }
@@ -109,11 +107,28 @@ namespace Shared.Utils
             return shapes;
         }
 
-        private Ellipse BuildEllipseFromComponent(CanvasComponent component) 
+        private Ellipse BuildEllipseFromComponent(CanvasComponent component)
         {
             Ellipse ellipse = new Ellipse();
 
-            //TODO math
+            ellipse.Width = component.a * 2.0;
+            ellipse.Height = component.b * 2.0;
+
+            RotateTransform rotateTransform = new RotateTransform();
+            rotateTransform.Angle = component.rotAngle * 180 / Math.PI;
+            rotateTransform.CenterX = component.a;
+            rotateTransform.CenterY = component.b;
+
+            TranslateTransform translateTransform = new TranslateTransform();
+            translateTransform.X = component.center.X - component.a;
+            translateTransform.Y = component.center.Y - component.b;
+
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(rotateTransform);
+            transformGroup.Children.Add(translateTransform);
+            ellipse.RenderTransform = transformGroup;
+
+            component.shape = ellipse;
 
             return ellipse;
         }
@@ -122,7 +137,11 @@ namespace Shared.Utils
         {
             Polygon polygon = new Polygon();
 
-            //TODO math
+            foreach (var point in component.points)
+            {
+                polygon.Points.Add(point);
+            }
+            component.shape = polygon;
 
             return polygon;
         }

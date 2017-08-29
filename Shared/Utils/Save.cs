@@ -212,8 +212,7 @@ namespace Shared.Utils
                 // We'll add more code here in the next step.
                 using (var dataWriter = new DataWriter(outputStream))
                 {
-                    dataWriter.WriteString($"Template Visible: {metaData.templateVisibility.ToString()}\n");
-                    dataWriter.WriteString($"Template Choice: {metaData.templateChoice.ToString()}");
+                    dataWriter.WriteString($"{metaData.templateChoice.ToString()}");
                     await dataWriter.StoreAsync();
                     await outputStream.FlushAsync();
                 }
