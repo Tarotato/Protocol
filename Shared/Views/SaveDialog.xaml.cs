@@ -29,8 +29,7 @@ namespace Shared.Views
                     // Application now has read/write access to all contents in the picked folder(including other sub-folder contents)
                     StorageFolder storageFolder = await folder.CreateFolderAsync(txtProjectName.Text, CreationCollisionOption.ReplaceExisting);
                     folder = storageFolder;
-                    //TODO: Rebecca 
-                    selected = rdMob;
+
                     dialog.Hide();
                 }
                 else

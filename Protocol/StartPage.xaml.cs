@@ -31,8 +31,11 @@ namespace Protocol
         {
             PreloadTemplateDialog templateDialog = new PreloadTemplateDialog();
             await templateDialog.ShowAsync();
-            var template = templateDialog.template;
-            this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, template, components));
+            if (templateDialog.result == ContentDialogResult.Primary)
+            {
+                var template = templateDialog.template;
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(strokes, null, template, components));
+            }
         }
 
         private async void OnOpenProjectClick(object sender, RoutedEventArgs e)
