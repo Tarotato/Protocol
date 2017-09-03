@@ -212,6 +212,10 @@ namespace Shared.Utils
                 // We'll add more code here in the next step.
                 using (var dataWriter = new DataWriter(outputStream))
                 {
+                    if (metaData.templateVisibility == Visibility.Collapsed)
+                    {
+                        metaData.templateChoice = TemplateChoice.None;
+                    }
                     dataWriter.WriteString($"{metaData.templateChoice.ToString()}");
                     await dataWriter.StoreAsync();
                     await outputStream.FlushAsync();
