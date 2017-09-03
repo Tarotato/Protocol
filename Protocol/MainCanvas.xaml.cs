@@ -94,14 +94,6 @@ namespace Protocol
             inkPresenter.UnprocessedInput.PointerPressed += UnprocessedInput_PointerPressed;
 
             SetUpEraseAll();
-
-            recognitionCanvas.Loaded += recognitionCanvas_Loaded;
-        }
-
-        private void recognitionCanvas_Loaded(object sender, RoutedEventArgs e)
-        {
-            viewModel.LoadShapes();
-            recognitionCanvas.Visibility = Visibility.Visible;
         }
 
         private void SetUpEraseAll() {
@@ -148,7 +140,7 @@ namespace Protocol
         private void AddShapeToRecognitionCanvas(Shape shape)
         {
             recognitionCanvas.Children.Add(shape);
-            var what = recognitionCanvas.Children.Count;
+            var count = recognitionCanvas.Children.Count;
             drawingCanvas.Invalidate();
         }
 
@@ -360,6 +352,12 @@ namespace Protocol
             {
                 templateChoice = TemplateChoice.Browser;
             }
+        }
+
+        private void randomButton_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.LoadShapes();
+            var count = recognitionCanvas.Children.Count;
         }
     }
 }

@@ -57,8 +57,8 @@ namespace Protocol
         {
             foreach (Shape shape in shapeHelper.BuildComponents(components))
             {
-                shape.Stroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 255));
-                shape.StrokeThickness = 3;
+                //shape.Stroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 255));
+                //shape.StrokeThickness = 3;
                 AddShapeToCanvas?.Invoke(shape);
             }
         }

@@ -255,6 +255,7 @@ namespace Shared.Utils
         public async Task<MainCanvasParams> OpenProject(List<InkStrokeContainer> currentStrokes, StorageFolder currentFolder, ProjectMetaData metaData, List<CanvasComponent> components)
         {
             List<InkStrokeContainer> newStrokes = new List<InkStrokeContainer>();
+            TemplateChoice templateChoice = TemplateChoice.None;
             //Let the user pick a project folder to open
             FolderPicker folderPicker = new FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
@@ -265,7 +266,12 @@ namespace Shared.Utils
                 IReadOnlyList<StorageFile> files = await newFolder.GetFilesAsync();
                 foreach (var f in files)
                 {
-                    if (f != null && f.FileType.Equals(".gif"))
+                    if (f.Name.Equals("metadata.txt"))
+                    {
+                        string text = await FileIO.ReadTextAsync(f);
+                        templateChoice = (TemplateChoice)Enum.Parse(typeof(TemplateChoice), text);
+                    }
+                    else if (f != null && f.FileType.Equals(".gif"))
                     {
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
@@ -283,7 +289,7 @@ namespace Shared.Utils
                 var result = await ConfirmSave(currentStrokes, currentFolder, metaData, components);
                 if (result != ContentDialogResult.None)
                 {
-                    return new MainCanvasParams(newStrokes, newFolder, TemplateChoice.None, components);
+                    return new MainCanvasParams(newStrokes, newFolder, templateChoice, components);
                 }
             }
             return null;

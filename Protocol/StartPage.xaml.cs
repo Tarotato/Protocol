@@ -43,9 +43,9 @@ namespace Protocol
             folderPicker.FileTypeFilter.Add("*");
 
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            var projectName = folder.DisplayName;
             if (folder != null)
             {
+                var projectName = folder.DisplayName;
                 IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
                 foreach (var f in files)
                 {
