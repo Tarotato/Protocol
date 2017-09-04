@@ -17,21 +17,24 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="SkyBlue">
         
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock x:Name="Title" HorizontalAlignment="Center" FontSize="48" Margin="32">Welcome to Protocol</TextBlock>
-
-            <!--Initial buttons-->
-            <StackPanel x:Name="ProjectButtons" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="NewProject" Click="OnNewProjectClick" Margin="12" Width="160">
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 200, 0, 0">
+                <Image Source="/Assets/Square44x44Logo.targetsize-256.png" Width="200" Height="200"/>
+                <TextBlock x:Name="Title" VerticalAlignment="Center" FontSize="100" Foreground="White" Margin="50, 0, 0, 0">ProtoCol</TextBlock>
+            </StackPanel>
+            <TextBlock x:Name="Subtitle" HorizontalAlignment="Center" FontSize="40" Foreground="White" >A Collaborative Tool for Low-Fidelity Prototyping</TextBlock>
+            
+            <StackPanel x:Name="ProjectButtons" Orientation="Horizontal" HorizontalAlignment="Center" Margin="50">
+                <Button x:Name="NewProject" Background="WhiteSmoke" Click="OnNewProjectClick" Margin="12" Width="160">
                     <StackPanel>
                         <TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE710;" FontSize="30" Margin="22" />
                         <TextBlock Text="New Project" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
                     </StackPanel>
                 </Button>
 
-                <Button x:Name="OpenProject" Click="OnOpenProjectClick" Margin="12" Width="160">
+                <Button x:Name="OpenProject" Background="WhiteSmoke" Click="OnOpenProjectClick" Margin="12" Width="160">
                     <StackPanel>
                         <TextBlock FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" Text="&#xE8DA;" FontSize="30" Margin="22" />
                         <TextBlock Text="Open Project" HorizontalAlignment="Center" FontSize="20" Margin="12"/>
