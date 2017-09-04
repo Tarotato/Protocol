@@ -118,7 +118,9 @@
                 <Grid >
                     <Image x:Name="bgTemplate" Source="/Assets/browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
-                    <Canvas x:Name="recognitionCanvas"/>
+                    <Canvas x:Name="recognitionCanvas">
+                        <Ellipse Fill="Red" Width="50" Height="50" Canvas.Left="100" Canvas.Top="100"/>
+                    </Canvas>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>

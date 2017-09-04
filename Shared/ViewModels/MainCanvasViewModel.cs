@@ -57,8 +57,6 @@ namespace Protocol
         {
             foreach (Shape shape in shapeHelper.BuildComponents(components))
             {
-                //shape.Stroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 255));
-                //shape.StrokeThickness = 3;
                 AddShapeToCanvas?.Invoke(shape);
             }
         }
@@ -129,7 +127,9 @@ namespace Protocol
 
             RemoveStrokes(shape);
             ellipse.shape.Stroke = new SolidColorBrush(currentBrush.Color);
+            ellipse.stroke = new SolidColorBrush(currentBrush.Color).Color;
             ellipse.shape.StrokeThickness = currentBrush.Size.Width;
+            ellipse.strokeThickness = currentBrush.Size.Width;
 
             components.Add(ellipse);
             AddShapeToCanvas?.Invoke(ellipse.shape);
@@ -141,7 +141,9 @@ namespace Protocol
 
             RemoveStrokes(shape);
             polygon.shape.Stroke = new SolidColorBrush(currentBrush.Color);
+            polygon.stroke = new SolidColorBrush(currentBrush.Color).Color;
             polygon.shape.StrokeThickness = currentBrush.Size.Width;
+            polygon.strokeThickness = currentBrush.Size.Width;
 
             components.Add(polygon);
             AddShapeToCanvas?.Invoke(polygon.shape);
