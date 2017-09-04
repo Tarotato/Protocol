@@ -6,6 +6,7 @@ using Windows.Foundation;
 using Windows.UI.Input.Inking.Analysis;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+using Windows.UI;
 
 namespace Shared.Utils
 {
@@ -110,6 +111,8 @@ namespace Shared.Utils
         private Ellipse BuildEllipseFromComponent(CanvasComponent component)
         {
             Ellipse ellipse = new Ellipse();
+            ellipse.Stroke = new SolidColorBrush(component.stroke);
+            ellipse.StrokeThickness = component.strokeThickness;
 
             ellipse.Width = component.a * 2.0;
             ellipse.Height = component.b * 2.0;
@@ -136,6 +139,8 @@ namespace Shared.Utils
         private Polygon BuildPolygonFromComponent(CanvasComponent component)
         {
             Polygon polygon = new Polygon();
+            polygon.Stroke = new SolidColorBrush(component.stroke);
+            polygon.StrokeThickness = component.strokeThickness;
 
             foreach (var point in component.points)
             {

@@ -381,6 +381,21 @@ namespace Shared.Utils
                         string text = await FileIO.ReadTextAsync(f);
                         templateChoice = (TemplateChoice)Enum.Parse(typeof(TemplateChoice), text);
                     }
+                    else if (f.Name.Equals("components.txt"))
+                    {
+                        // read file load shapes
+                        string text = await FileIO.ReadTextAsync(f);
+                        string[] xmlComponents = text.Split('\n');
+
+                        foreach (string component in xmlComponents)
+                        {
+                            if (component.Length > 0)
+                            {
+                                components.Add(Serializer.Deserialize<CanvasComponent>(component));
+                            }
+                        }
+
+                    }
                     else if (f != null && f.FileType.Equals(".gif"))
                     {
                         // Open a file stream for reading.

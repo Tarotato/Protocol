@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Windows.Foundation;
+using Windows.UI;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 namespace Shared.Models
@@ -15,6 +17,11 @@ namespace Shared.Models
         public ComponentType type { get; set; }
 
         public Shape shape { get; set; }
+
+        [DataMember]
+        public Color stroke { get; set; }
+        [DataMember]
+        public double strokeThickness { get; set; }
 
         // ellipse specific fields
         [DataMember]
