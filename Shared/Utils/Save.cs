@@ -213,14 +213,14 @@ namespace Shared.Utils
 
             ShowFlyoutAboveInkToolbar?.Invoke("Image Saved");
         }
-
-        public async Task<StorageFolder> SaveProject(StorageFolder storageFolder, List<InkStrokeContainer> strokes, ProjectMetaData metaData)
+        public async Task<StorageFolder> SaveProject(StorageFolder storageFolder, List<InkStrokeContainer> strokes, ProjectMetaData metaData, List<CanvasComponent> components)
         {
             //Use existing folder
             if (storageFolder != null)
             {
                 SaveStrokes(storageFolder, strokes);
                 SaveMetaData(metaData, storageFolder);
+                SaveCanvasComponents(components, storageFolder);
                 return storageFolder;
             }
 
@@ -230,9 +230,10 @@ namespace Shared.Utils
             if (save.result == ContentDialogResult.Primary)
             {
                 //Save
-                SaveStrokes(save.folder, strokes);
-                SaveMetaData(metaData, storageFolder);
                 storageFolder = save.folder;
+                SaveStrokes(storageFolder, strokes);
+                SaveMetaData(metaData, storageFolder);
+                SaveCanvasComponents(components, storageFolder);
                 return storageFolder;
             }
             return null;
@@ -298,15 +299,18 @@ namespace Shared.Utils
 
         private async void SaveMetaData(ProjectMetaData metaData, StorageFolder storageFolder)
         {
-            var file = await storageFolder.CreateFileAsync($"{storageFolder.Name}Protocol.txt", CreationCollisionOption.ReplaceExisting);
+            var file = await storageFolder.CreateFileAsync("metadata.txt", CreationCollisionOption.ReplaceExisting);
             var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
             using (var outputStream = stream.GetOutputStreamAt(0))
             {
                 // We'll add more code here in the next step.
                 using (var dataWriter = new DataWriter(outputStream))
                 {
-                    dataWriter.WriteString($"Template Visible: {metaData.templateVisibility.ToString()}\n");
-                    dataWriter.WriteString($"Template Choice: {metaData.templateChoice.ToString()}");
+                    if (metaData.templateVisibility == Visibility.Collapsed)
+                    {
+                        metaData.templateChoice = TemplateChoice.None;
+                    }
+                    dataWriter.WriteString($"{metaData.templateChoice.ToString()}");
                     await dataWriter.StoreAsync();
                     await outputStream.FlushAsync();
                 }
@@ -314,20 +318,42 @@ namespace Shared.Utils
             stream.Dispose(); // Or use the stream variable (see previous code snippet) with a using statement as well.
         }
 
-        public async Task<ContentDialogResult> ConfirmSave(List<InkStrokeContainer> strokes, StorageFolder folder, ProjectMetaData metaData)
+        private async void SaveCanvasComponents(List<CanvasComponent> components,StorageFolder storageFolder)
+        {
+            var file = await storageFolder.CreateFileAsync("components.txt", CreationCollisionOption.ReplaceExisting);
+            var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+            using (var outputStream = stream.GetOutputStreamAt(0))
+            {
+                // We'll add more code here in the next step.
+                using (var dataWriter = new DataWriter(outputStream))
+                {
+                    foreach (CanvasComponent component in components)
+                    {
+                        dataWriter.WriteString($"{Serializer.Serialize(component)}\n");
+                    }
+
+                    await dataWriter.StoreAsync();
+                    await outputStream.FlushAsync();
+                }
+            }
+            stream.Dispose(); // Or use the stream variable (see previous code snippet) with a using statement as well.
+        }
+
+        public async Task<ContentDialogResult> ConfirmSave(List<InkStrokeContainer> strokes, StorageFolder folder, ProjectMetaData metaData, List<CanvasComponent> components)
         {
             TernaryButtonDialog t = new TernaryButtonDialog();
             await t.ShowAsync();
             if (t.result == ContentDialogResult.Primary)
             {
-                await SaveProject(folder, strokes, metaData);
+                await SaveProject(folder, strokes, metaData, components);
             }
             return t.result;
         }
 
-        public async Task<MainCanvasParams> OpenProject(List<InkStrokeContainer> currentStrokes, StorageFolder currentFolder, ProjectMetaData metaData)
+        public async Task<MainCanvasParams> OpenProject(List<InkStrokeContainer> currentStrokes, StorageFolder currentFolder, ProjectMetaData metaData, List<CanvasComponent> components)
         {
             List<InkStrokeContainer> newStrokes = new List<InkStrokeContainer>();
+            TemplateChoice templateChoice = TemplateChoice.None;
             //Let the user pick a project folder to open
             FolderPicker folderPicker = new FolderPicker();
             folderPicker.FileTypeFilter.Add("*");
@@ -338,7 +364,12 @@ namespace Shared.Utils
                 IReadOnlyList<StorageFile> files = await newFolder.GetFilesAsync();
                 foreach (var f in files)
                 {
-                    if (f != null && f.FileType.Equals(".gif"))
+                    if (f.Name.Equals("metadata.txt"))
+                    {
+                        string text = await FileIO.ReadTextAsync(f);
+                        templateChoice = (TemplateChoice)Enum.Parse(typeof(TemplateChoice), text);
+                    }
+                    else if (f != null && f.FileType.Equals(".gif"))
                     {
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);
@@ -353,10 +384,10 @@ namespace Shared.Utils
                         stream.Dispose();
                     }
                 }
-                var result = await ConfirmSave(currentStrokes, currentFolder, metaData);
+                var result = await ConfirmSave(currentStrokes, currentFolder, metaData, components);
                 if (result != ContentDialogResult.None)
                 {
-                    return new MainCanvasParams(newStrokes, newFolder, TemplateChoice.None);
+                    return new MainCanvasParams(newStrokes, newFolder, templateChoice, components);
                 }
             }
             return null;

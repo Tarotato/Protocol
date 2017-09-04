@@ -20,6 +20,7 @@ namespace Shared.Views
 {
     public sealed partial class TemplateDialog : ContentDialog
     {
+        
         public TemplateChoice templateChoice = TemplateChoice.None;
 
         public TemplateDialog()

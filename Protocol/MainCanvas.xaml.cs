@@ -100,7 +100,7 @@ namespace Protocol
 
             SetUpEraseAll();
         }
-        
+
         private void SetUpEraseAll() {
             var eraser = inkToolbar.GetToolButton(InkToolbarTool.Eraser) as InkToolbarEraserButton;
 
@@ -145,6 +145,7 @@ namespace Protocol
         private void AddShapeToRecognitionCanvas(Shape shape)
         {
             recognitionCanvas.Children.Add(shape);
+            var count = recognitionCanvas.Children.Count;
             drawingCanvas.Invalidate();
         }
 
@@ -237,7 +238,7 @@ namespace Protocol
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
                 // TODO size is hard coded
-                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None));
+                this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None, new List<CanvasComponent>()));
             }
         }
 
@@ -394,6 +395,12 @@ namespace Protocol
                     backgroundImage = bmp;                    
                 }
             }
+        }
+
+        private void randomButton_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.LoadShapes();
+            var count = recognitionCanvas.Children.Count;
         }
     }
 }

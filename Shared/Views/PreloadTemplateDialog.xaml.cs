@@ -20,6 +20,7 @@ namespace Shared.Views
 {
     public sealed partial class PreloadTemplateDialog : ContentDialog
     {
+        public ContentDialogResult result { get; set; }
         public TemplateChoice template { get; set; }
 
         public PreloadTemplateDialog()
@@ -29,6 +30,7 @@ namespace Shared.Views
 
         private void SubmitButton_Click(object sender, RoutedEventArgs e)
         {
+            result = ContentDialogResult.Primary;
             if (none.IsChecked == true)
             {
                 template = TemplateChoice.None;
@@ -46,6 +48,7 @@ namespace Shared.Views
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            result = ContentDialogResult.Secondary;
             preloadTemplateDialog.Hide();
         }
     }

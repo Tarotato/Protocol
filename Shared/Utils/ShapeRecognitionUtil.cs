@@ -40,10 +40,10 @@ namespace Shared.Utils
             component.a = ellipse.Width / 2.0;
             component.b = ellipse.Height / 2.0;
             component.rotAngle = rotAngle;
-            // var point = new Point(shape.Center.X - ellipse.Width / 2.0, shape.Center.Y - ellipse.Height / 2.0);
-            var point = new Point(shape.Center.X, shape.Center.Y);
 
+            var point = new Point(shape.Center.X, shape.Center.Y);
             component.center = point;
+
             component.shape = ellipse;
 
             return component;
@@ -85,6 +85,65 @@ namespace Shared.Utils
             }
 
             return startValue ^ finishValue; // xor means line started outside, ended inside (vice versa)
+        }
+
+        internal List<Shape> BuildComponents(List<CanvasComponent> components)
+        {
+            List<Shape> shapes = new List<Shape>();
+            foreach (CanvasComponent component in components)
+            {
+                if (component.type == CanvasComponent.ComponentType.Ellipse)
+                {
+                    Ellipse e = BuildEllipseFromComponent(component);
+                    shapes.Add(e);
+                }
+                else if (component.type == CanvasComponent.ComponentType.Polygon)
+                {
+                    Polygon p = BuildPolygonFromComponent(component);
+                    shapes.Add(p);
+                }
+            }
+
+            return shapes;
+        }
+
+        private Ellipse BuildEllipseFromComponent(CanvasComponent component)
+        {
+            Ellipse ellipse = new Ellipse();
+
+            ellipse.Width = component.a * 2.0;
+            ellipse.Height = component.b * 2.0;
+
+            RotateTransform rotateTransform = new RotateTransform();
+            rotateTransform.Angle = component.rotAngle * 180 / Math.PI;
+            rotateTransform.CenterX = component.a;
+            rotateTransform.CenterY = component.b;
+
+            TranslateTransform translateTransform = new TranslateTransform();
+            translateTransform.X = component.center.X - component.a;
+            translateTransform.Y = component.center.Y - component.b;
+
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(rotateTransform);
+            transformGroup.Children.Add(translateTransform);
+            ellipse.RenderTransform = transformGroup;
+
+            component.shape = ellipse;
+
+            return ellipse;
+        }
+
+        private Polygon BuildPolygonFromComponent(CanvasComponent component)
+        {
+            Polygon polygon = new Polygon();
+
+            foreach (var point in component.points)
+            {
+                polygon.Points.Add(point);
+            }
+            component.shape = polygon;
+
+            return polygon;
         }
 
         private bool PointInPolygon(Point point, List<Point> polygon)

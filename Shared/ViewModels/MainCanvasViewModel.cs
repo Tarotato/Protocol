@@ -12,6 +12,7 @@ using Shared.Utils;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Media;
+using Windows.UI;
 
 namespace Protocol
 {
@@ -47,8 +48,19 @@ namespace Protocol
         {
             _strokes = parameters.strokes;
             _storageFolder = parameters.folder;
+            components = parameters.components;
 
             save.ShowFlyoutAboveInkToolbar += ShowFlyout;
+        }
+
+        internal void LoadShapes()
+        {
+            foreach (Shape shape in shapeHelper.BuildComponents(components))
+            {
+                //shape.Stroke = new SolidColorBrush(Color.FromArgb(0, 0, 0, 255));
+                //shape.StrokeThickness = 3;
+                AddShapeToCanvas?.Invoke(shape);
+            }
         }
 
         internal void ShowFlyout(string message)
@@ -260,7 +272,7 @@ namespace Protocol
 
         public async Task<bool> SaveProject(ProjectMetaData metaData)
         {
-            var savedFolder = await save.SaveProject(_storageFolder, _strokes, metaData);
+            var savedFolder = await save.SaveProject(_storageFolder, _strokes, metaData, components);
             if(savedFolder != null)
             {
                 _storageFolder = savedFolder;
@@ -270,12 +282,12 @@ namespace Protocol
 
         public async Task<MainCanvasParams> OpenExistingProject(ProjectMetaData metaData)
         {
-            return await save.OpenProject(_strokes, _storageFolder, metaData);
+            return await save.OpenProject(_strokes, _storageFolder, metaData, components);
         }
 
         public async Task<ContentDialogResult> OpenNewProject(ProjectMetaData metaData)
         {
-            return await save.ConfirmSave(_strokes, _storageFolder, metaData);
+            return await save.ConfirmSave(_strokes, _storageFolder, metaData, components);
         }
     }
 }

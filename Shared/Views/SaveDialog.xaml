@@ -29,12 +29,6 @@
                     Browse
                 </Button>
             </StackPanel>
-            <TextBlock  TextWrapping="Wrap" Text="Prototype: "/>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <RadioButton x:Name="rdMob" Content="Mobile" IsTabStop="False"/>
-                <RadioButton x:Name="rdDesk" Content="Desktop" />
-                <RadioButton x:Name="rdHub" Content="Hub" />
-            </StackPanel>
 
         </StackPanel>
         <StackPanel 
