@@ -103,7 +103,7 @@ namespace Shared.Utils
         private async Task<WriteableBitmap> SaveRecognitionCanvas1(Canvas canvas, double width, double height)
         {
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
-            var savefile = await pictureFolder.CreateFileAsync("recogCanvas1.png", CreationCollisionOption.ReplaceExisting);
+            var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.GenerateUniqueName);
             if (savefile == null)
                 return null;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
@@ -148,7 +148,7 @@ namespace Shared.Utils
         private async Task<WriteableBitmap> SaveRecognitionCanvas2(Canvas canvas, double width, double height)
         {
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
-            var savefile = await pictureFolder.CreateFileAsync("recogCanvas2.png", CreationCollisionOption.ReplaceExisting);
+            var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.GenerateUniqueName);
             if (savefile == null)
                 return null;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);

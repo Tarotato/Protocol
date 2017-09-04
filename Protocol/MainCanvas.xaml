@@ -138,7 +138,7 @@
                     <Image x:Name="bgTemplate" Source="/Assets/browser.png" Visibility="Collapsed" Stretch="UniformToFill"/>
                     <Image x:Name="bgGrid" Source="/Assets/grid.png" Visibility="Collapsed" Stretch="UniformToFill" Opacity=".15"/>
                     <Canvas x:Name="recognitionCanvas">
-                        <Rectangle Width="1920" Height="1080" Stroke="White" />
+                        <Rectangle Width="1919" Height="1079" Stroke="White" />
                     </Canvas>
                     <canvas:CanvasControl x:Name="drawingCanvas" Draw="DrawCanvas"/>
                     <InkCanvas x:Name="inkCanvas"/>
