@@ -23,12 +23,25 @@ namespace Shared.Utils
     {
         public delegate void ChangedEventHandler(String message);
         public event ChangedEventHandler ShowFlyoutAboveInkToolbar;
+        private bool IsTooLarge = false;
+
         public async void SaveAsImage(double width, double height, List<InkStrokeContainer> _strokes, ProjectMetaData metaData, Canvas recognitionCanvas)
         {
+            IsTooLarge = false;
             //Create a bitmap of the recognition canvas so it can be merged with the inkcanvas image
             WriteableBitmap recogWBitmap1 = await SaveRecognitionCanvas1(recognitionCanvas, width, height);
-            WriteableBitmap recogWBitmap = await SaveRecognitionCanvas(recognitionCanvas, width, height);
-            
+
+            WriteableBitmap recogWBitmap;
+
+            if (IsTooLarge)
+            {
+                recogWBitmap = await SaveRecognitionCanvas2(recognitionCanvas, width, height);
+            }
+            else
+            {
+                recogWBitmap = new WriteableBitmap((int)width, (int)height);
+            }
+
             //Create a temporary inkcanvas image of the inkcanvas
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
             var file = await pictureFolder.CreateFileAsync("tempImage.png", CreationCollisionOption.ReplaceExisting);
@@ -87,13 +100,10 @@ namespace Shared.Utils
             }
         }
 
-        private async Task<WriteableBitmap> SaveRecognitionCanvas(Canvas canvas, double width, double height)
+        private async Task<WriteableBitmap> SaveRecognitionCanvas1(Canvas canvas, double width, double height)
         {
-            //StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
-            //var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.ReplaceExisting);
-            FileSavePicker fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
-            StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
+            StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
+            var savefile = await pictureFolder.CreateFileAsync("recogCanvas1.png", CreationCollisionOption.ReplaceExisting);
             if (savefile == null)
                 return null;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
@@ -102,22 +112,25 @@ namespace Shared.Utils
             await renderBitmap.RenderAsync(canvas, (int)width, (int)height);
             IBuffer x = await renderBitmap.GetPixelsAsync();
 
-            //Write the image pixels to a bitmap
-            WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
-            byte[] lol = WindowsRuntimeBufferExtensions.ToArray(x);
-            Array.Reverse(lol);
-            using (Stream pb = WBitmap.PixelBuffer.AsStream())
+            //Only draw second bitmap when canvas is full screen (large)
+            //7664640 - max buffer size
+            int value;
+            if ((int)x.Length > 7664640)
             {
-                await pb.WriteAsync(lol, 0, 7664640);// (int)x.Length); //7664640
+                IsTooLarge = true;
+                value = 7664640;
+            }
+            else
+            {
+                value = (int)x.Length;
             }
 
-            //WriteableBitmap WBitmap2 = new WriteableBitmap((int)canvas.ActualWidth, (int)canvas.ActualHeight);
-            //using (Stream pb = WBitmap.PixelBuffer.AsStream())
-            //{
-            //    await pb.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 7664640, (int)x.Length - 7664640);
-            //}
-
-            //WBitmap.Blit(new Rect(0, 0, WBitmap.PixelWidth, WBitmap.PixelHeight), WBitmap2, new Rect(0, 0, WBitmap2.PixelWidth, WBitmap2.PixelHeight));
+            //Write the image pixels to a bitmap
+            WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
+            using (Stream pb = WBitmap.PixelBuffer.AsStream())
+            {
+                await pb.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 0, value);
+            }
 
             Stream pixelStream = WBitmap.PixelBuffer.AsStream();
             byte[] pixels = new byte[pixelStream.Length];
@@ -132,13 +145,10 @@ namespace Shared.Utils
             return WBitmap;
         }
 
-        private async Task<WriteableBitmap> SaveRecognitionCanvas1(Canvas canvas, double width, double height)
+        private async Task<WriteableBitmap> SaveRecognitionCanvas2(Canvas canvas, double width, double height)
         {
-            //StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
-            //var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.ReplaceExisting);
-            FileSavePicker fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
-            StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
+            StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
+            var savefile = await pictureFolder.CreateFileAsync("recogCanvas2.png", CreationCollisionOption.ReplaceExisting);
             if (savefile == null)
                 return null;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
@@ -149,9 +159,11 @@ namespace Shared.Utils
 
             //Write the image pixels to a bitmap
             WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
+            byte[] lol = WindowsRuntimeBufferExtensions.ToArray(x);
+            Array.Reverse(lol);
             using (Stream pb = WBitmap.PixelBuffer.AsStream())
             {
-                await pb.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 0, (int)x.Length - 7664640);// (int)x.Length); //7664640
+                await pb.WriteAsync(lol, 7664640, (int)x.Length - 7664640);
             }
             
             Stream pixelStream = WBitmap.PixelBuffer.AsStream();
@@ -162,7 +174,7 @@ namespace Shared.Utils
             // Save the image file with jpg extension 
             BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
             encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)WBitmap.PixelWidth, (uint)WBitmap.PixelHeight, 96.0, 96.0, pixels);
-            encoder.BitmapTransform.Flip = BitmapFlip.Vertical;
+            encoder.BitmapTransform.Rotation = BitmapRotation.Clockwise180Degrees;
             await encoder.FlushAsync();
 
             return WBitmap;
