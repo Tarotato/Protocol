@@ -391,7 +391,7 @@ namespace Protocol
 
                     // show the image in the UI if you want.
                     bgImage.Source = bmp;
-                    backgroundImage = bmp;
+                    backgroundImage = bmp;                    
                 }
             }
         }

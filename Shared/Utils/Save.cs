@@ -25,9 +25,11 @@ namespace Shared.Utils
         public event ChangedEventHandler ShowFlyoutAboveInkToolbar;
         public async void SaveAsImage(double width, double height, List<InkStrokeContainer> _strokes, ProjectMetaData metaData, Canvas recognitionCanvas)
         {
-
-            WriteableBitmap wb = await SaveRecognitionCanvas(recognitionCanvas);
-            //Create a temporary file of the image so it can be merged with the template
+            //Create a bitmap of the recognition canvas so it can be merged with the inkcanvas image
+            WriteableBitmap recogWBitmap1 = await SaveRecognitionCanvas1(recognitionCanvas, width, height);
+            WriteableBitmap recogWBitmap = await SaveRecognitionCanvas(recognitionCanvas, width, height);
+            
+            //Create a temporary inkcanvas image of the inkcanvas
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
             var file = await pictureFolder.CreateFileAsync("tempImage.png", CreationCollisionOption.ReplaceExisting);
 
@@ -37,6 +39,7 @@ namespace Shared.Utils
                 CanvasDevice device = CanvasDevice.GetSharedDevice();
                 CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
 
+                //Add strokes to be drawn
                 using (var ds = renderTarget.CreateDrawingSession())
                 {
                     ds.Clear(Colors.White);
@@ -69,22 +72,25 @@ namespace Shared.Utils
 
                         int h = bitmapImage.PixelHeight;
                         int wd = bitmapImage.PixelWidth;
+
                         //Create WriteableBitmap
                         using (var stream = await file.OpenReadAsync())
                         {
                             w = new WriteableBitmap(wd, h);
                             await w.SetSourceAsync(stream);
-                            //Merge image with template selected
-                            SaveImageFile(await MergeImages(w, wb));                            
+
+                            //Merge inkcanvas image with other images
+                            SaveImageFile(await MergeImages(w, metaData, recogWBitmap1, recogWBitmap));                            
                         }
                     }
                 }
             }
         }
 
-        private async Task<WriteableBitmap> SaveRecognitionCanvas(Canvas canvas)
+        private async Task<WriteableBitmap> SaveRecognitionCanvas(Canvas canvas, double width, double height)
         {
-            // Set up and launch the Save Picker
+            //StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
+            //var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.ReplaceExisting);
             FileSavePicker fileSavePicker = new FileSavePicker();
             fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
             StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
@@ -93,46 +99,94 @@ namespace Shared.Utils
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
 
             RenderTargetBitmap renderBitmap = new RenderTargetBitmap();
-            // needed otherwise the image output is black
-            canvas.Measure(new Size((int)canvas.ActualWidth, (int)canvas.ActualHeight));
-            canvas.Arrange(new Rect(0,0, (int)canvas.ActualWidth, (int)canvas.ActualHeight));
-
-            await renderBitmap.RenderAsync(canvas, (int)canvas.ActualWidth, (int)canvas.ActualHeight);
+            await renderBitmap.RenderAsync(canvas, (int)width, (int)height);
             IBuffer x = await renderBitmap.GetPixelsAsync();
 
             //Write the image pixels to a bitmap
-            WriteableBitmap wb = new WriteableBitmap((int)canvas.ActualWidth, (int)canvas.ActualHeight);
-            using (Stream str = wb.PixelBuffer.AsStream())
+            WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
+            byte[] lol = WindowsRuntimeBufferExtensions.ToArray(x);
+            Array.Reverse(lol);
+            using (Stream pb = WBitmap.PixelBuffer.AsStream())
             {
-                await str.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 0, (int)x.Length);
+                await pb.WriteAsync(lol, 0, 7664640);// (int)x.Length); //7664640
             }
 
-            Stream pixelStream = wb.PixelBuffer.AsStream();
+            //WriteableBitmap WBitmap2 = new WriteableBitmap((int)canvas.ActualWidth, (int)canvas.ActualHeight);
+            //using (Stream pb = WBitmap.PixelBuffer.AsStream())
+            //{
+            //    await pb.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 7664640, (int)x.Length - 7664640);
+            //}
+
+            //WBitmap.Blit(new Rect(0, 0, WBitmap.PixelWidth, WBitmap.PixelHeight), WBitmap2, new Rect(0, 0, WBitmap2.PixelWidth, WBitmap2.PixelHeight));
+
+            Stream pixelStream = WBitmap.PixelBuffer.AsStream();
             byte[] pixels = new byte[pixelStream.Length];
+            var length = pixels.Length;
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
 
             // Save the image file with jpg extension 
             BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)wb.PixelWidth, (uint)wb.PixelHeight, 96.0, 96.0, pixels);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)WBitmap.PixelWidth, (uint)WBitmap.PixelHeight, 96.0, 96.0, pixels);
             await encoder.FlushAsync();
 
-            return wb;
-        }    
+            return WBitmap;
+        }
 
-        private async Task<WriteableBitmap> MergeImages(WriteableBitmap originalImage, WriteableBitmap shapes)
+        private async Task<WriteableBitmap> SaveRecognitionCanvas1(Canvas canvas, double width, double height)
         {
-            //if (metaData.templateVisibility == Visibility.Collapsed)
-            //    return originalImage;
+            //StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
+            //var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.ReplaceExisting);
+            FileSavePicker fileSavePicker = new FileSavePicker();
+            fileSavePicker.FileTypeChoices.Add("PNG", new string[] { ".png" });
+            StorageFile savefile = await fileSavePicker.PickSaveFileAsync();
+            if (savefile == null)
+                return null;
+            IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
 
-            //Merge image with template if visible
+            RenderTargetBitmap renderBitmap = new RenderTargetBitmap();
+            await renderBitmap.RenderAsync(canvas, (int)width, (int)height);
+            IBuffer x = await renderBitmap.GetPixelsAsync();
+
+            //Write the image pixels to a bitmap
+            WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
+            using (Stream pb = WBitmap.PixelBuffer.AsStream())
+            {
+                await pb.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 0, (int)x.Length - 7664640);// (int)x.Length); //7664640
+            }
+            
+            Stream pixelStream = WBitmap.PixelBuffer.AsStream();
+            byte[] pixels = new byte[pixelStream.Length];
+            var length = pixels.Length;
+            await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+
+            // Save the image file with jpg extension 
+            BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+            encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)WBitmap.PixelWidth, (uint)WBitmap.PixelHeight, 96.0, 96.0, pixels);
+            encoder.BitmapTransform.Flip = BitmapFlip.Vertical;
+            await encoder.FlushAsync();
+
+            return WBitmap;
+        }
+
+
+        private async Task<WriteableBitmap> MergeImages(WriteableBitmap originalImage, ProjectMetaData metaData, WriteableBitmap shapes1, WriteableBitmap shapes)
+        {
+            // Merge inkcanvas with recognition canvas
             var writeableBmp = new WriteableBitmap(1, 1);
             var mergedImage = originalImage;
-            //var templateImage = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/{metaData.templateChoice.ToString()}.png"));
-            //var background = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/DefaultBackground.png"));
+            var background = metaData.bgImage;
 
-            //background.Blit(new Rect(0, 0, background.PixelWidth, background.PixelHeight), templateImage, new Rect(0, 0, templateImage.PixelWidth, templateImage.PixelHeight));
+            // background.Blit(new Rect(0, 0, background.PixelWidth, background.PixelHeight), mergedImage, new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight));
+            mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), shapes1, new Rect(0, 0, shapes1.PixelWidth, shapes1.PixelHeight));
             mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), shapes, new Rect(0, 0, shapes.PixelWidth, shapes.PixelHeight));
-            //shapes.Blit(new Rect(0, 0, shapes.PixelWidth, shapes.PixelHeight), mergedImage, new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight));
+
+            //Merge image with template if visible
+            if (metaData.templateVisibility == Visibility.Visible)
+            {
+                var templateImage = await writeableBmp.FromContent(new Uri($"ms-appx:///Assets/{metaData.templateChoice.ToString()}.png"));
+                mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), templateImage, new Rect(0, 0, templateImage.PixelWidth, templateImage.PixelHeight));
+            }
+            //mergedImage.Blit(new Rect(0, 0, mergedImage.PixelWidth, mergedImage.PixelHeight), background, new Rect(0, 0, background.PixelWidth, background.PixelHeight));
 
             return mergedImage;
         }
