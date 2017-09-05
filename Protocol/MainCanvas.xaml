@@ -40,23 +40,34 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                         <Button x:Name="openButton" 
-                            Click="OpenButton_ClickAsync"
-                            FontFamily="Segoe MDL2 Assets" 
+                            Click="OpenButton_Click"
                             Width="40" 
                             Height="40" 
                             Background="#0175BF"
                             Foreground="White">
                             <SymbolIcon Symbol="{x:Bind OpenIcon}"/>
                         </Button>
-                        <Button Background="Transparent" Click="OpenButton_ClickAsync">
+                        <Button Background="Transparent" Click="OpenButton_Click">
                             <TextBlock Text="Open Exisiting Project" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                        <Button x:Name="navSaveButton" 
+                            Click="SaveButton_Click" 
+                            Width="40" 
+                            Height="40" 
+                            Background="#0175BF"
+                            Foreground="White">
+                            <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
+                        </Button>
+                        <Button Background="Transparent" Click="SaveButton_Click">
+                            <TextBlock Text="Save Project" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>
                         </Button>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                         <Button
                             x:Name="exportButton" 
-                            Click="ExportButton_Click" 
-                            FontFamily="Segoe MDL2 Assets" 
+                            Click="ExportButton_Click"
                             Width="40" 
                             Height="40" 
                             Background="#0175BF"

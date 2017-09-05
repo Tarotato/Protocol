@@ -223,7 +223,7 @@ namespace Protocol
             await viewModel.SaveProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice));
         }
 
-        private async void OpenButton_ClickAsync(object sender, RoutedEventArgs e)
+        private async void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             var parameters = await viewModel.OpenExistingProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice));
             if (parameters != null)
