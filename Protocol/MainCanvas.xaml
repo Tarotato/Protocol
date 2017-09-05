@@ -144,6 +144,21 @@
                     <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
 
+                <StackPanel
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Left"
+                    Orientation="Horizontal">
+                    <Button
+                        x:Name="homeButton" 
+                        Click="HomeButton_Click"
+                        MinHeight="49"
+                        MinWidth="49"
+                        Background="WhiteSmoke"
+                        ToolTipService.ToolTip="Save Project">
+                        <SymbolIcon Symbol="{x:Bind HomeIcon}"/>
+                    </Button>
+                </StackPanel>
+
                 <Grid>
                     <InkToolbar x:Name="inkToolbar"
                     VerticalAlignment="Bottom"
@@ -168,15 +183,7 @@
                         VerticalAlignment="Bottom"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
-                        <Button
-                            x:Name="randomButton" 
-                            Click="randomButton_Click"
-                            MinHeight="49"
-                            MinWidth="49"
-                            Background="WhiteSmoke"
-                            ToolTipService.ToolTip="New Project">
-                            <SymbolIcon Symbol="{x:Bind SettingsIcon}"/>
-                        </Button>
+                        
                         <Button 
                             x:Name="gridButton" 
                             Click="GridButton_Click" 

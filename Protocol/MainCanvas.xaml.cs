@@ -44,6 +44,7 @@ namespace Protocol
         Symbol SettingsIcon = (Symbol)0xE713;
         Symbol MobileIcon = (Symbol)0xE8EA;
         Symbol WebIcon = (Symbol)0xE774;
+        Symbol HomeIcon = (Symbol)0xE80F;
 
         private TemplateChoice templateChoice = TemplateChoice.None;
         private WriteableBitmap backgroundImage = null;
@@ -227,17 +228,14 @@ namespace Protocol
             var parameters = await viewModel.OpenExistingProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice));
             if (parameters != null)
             {
-                // TODO size is hard coded
                 this.Frame.Navigate(typeof(MainCanvas), parameters);
             }
         }
 
         private async void NewButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO check if user want to save first
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
-                // TODO size is hard coded
                 this.Frame.Navigate(typeof(MainCanvas), new MainCanvasParams(new List<InkStrokeContainer>(), null, TemplateChoice.None, new List<CanvasComponent>()));
             }
         }
@@ -397,10 +395,18 @@ namespace Protocol
             }
         }
 
-        private void randomButton_Click(object sender, RoutedEventArgs e)
+        private async void HomeButton_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.LoadShapes();
-            var count = recognitionCanvas.Children.Count;
+            if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
+            {
+                this.Frame.Navigate(typeof(MainCanvas));
+            }
         }
+
+        //private void randomButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    viewModel.LoadShapes();
+        //    var count = recognitionCanvas.Children.Count;
+        //}
     }
 }
