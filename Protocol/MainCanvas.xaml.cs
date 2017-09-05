@@ -399,7 +399,7 @@ namespace Protocol
         {
             if (await viewModel.OpenNewProject(new ProjectMetaData(bgTemplate.Visibility, templateChoice)) != ContentDialogResult.None)
             {
-                this.Frame.Navigate(typeof(MainCanvas));
+                this.Frame.Navigate(typeof(StartPage));
             }
         }
 
