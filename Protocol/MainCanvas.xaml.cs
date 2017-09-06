@@ -66,6 +66,7 @@ namespace Protocol
             viewModel.RemoveShapeFromCanvas += RemoveShapeFromRecognitionCanvas;
 
             templateChoice = parameters.template;
+
             if (templateChoice == TemplateChoice.Browser)
             {
                 templateToggle.IsOn = true;
@@ -77,6 +78,20 @@ namespace Protocol
             {
                 templateToggle.IsOn = true;
                 BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYY.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+            else if (templateChoice == TemplateChoice.MobYX)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYX.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+            else if (templateChoice == TemplateChoice.MobXX)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobXX.png", UriKind.Absolute));
                 bgTemplate.Source = bm;
                 bgTemplate.Visibility = Visibility.Visible;
             }
