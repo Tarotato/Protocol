@@ -66,7 +66,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                         <Button
-                            x:Name="exportButton" 
+                            x:Name="navExportButton" 
                             Click="ExportButton_Click"
                             Width="40" 
                             Height="40" 
@@ -223,6 +223,15 @@
                             Background="WhiteSmoke"
                             ToolTipService.ToolTip="Save Project">
                             <SymbolIcon Symbol="{x:Bind SaveIcon}"/>
+                        </Button>
+                        <Button
+                           x:Name="exportButton" 
+                            Click="ExportButton_Click"
+                            MinHeight="49"
+                            MinWidth="49"
+                            Background="WhiteSmoke"
+                            ToolTipService.ToolTip="Export as Image">
+                            <SymbolIcon Symbol="{x:Bind ExportIcon}"/>
                         </Button>
                         <Button
                             x:Name="optionsButton" 

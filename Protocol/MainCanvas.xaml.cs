@@ -37,7 +37,7 @@ namespace Protocol
 
         Symbol ToShapeIcon = (Symbol)0xE97B;
         Symbol TouchWritingIcon = (Symbol)0xED5F;
-        Symbol ExportIcon = (Symbol)0xE158;
+        Symbol ExportIcon = (Symbol)0xEB9F;
         Symbol SaveIcon = (Symbol)0xE105;
         Symbol OpenIcon = (Symbol)0xED43;
         Symbol NewIcon = (Symbol)0xE8E5;
