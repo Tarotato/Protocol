@@ -123,7 +123,7 @@
                                 Background="#0175BF"
                                 Foreground="White"
                                 IsEnabled="False">
-                            <SymbolIcon Symbol="{x:Bind WebIcon}"/>
+                            <SymbolIcon Symbol="{x:Bind ImportFileIcon}"/>
                         </Button>
                         <Button x:Name="importBackground2" Background="Transparent" Click="ImportBackground_Click" IsEnabled="True">
                             <TextBlock x:Name="importBackgroundText" Text="Import" FontSize="16" Foreground="WhiteSmoke" Margin="10,0,0,6"/>

@@ -40,11 +40,12 @@ namespace Protocol
         Symbol ExportIcon = (Symbol)0xEB9F;
         Symbol SaveIcon = (Symbol)0xE105;
         Symbol OpenIcon = (Symbol)0xED43;
-        Symbol NewIcon = (Symbol)0xE8E5;
+        Symbol NewIcon = (Symbol)0xE78B;
         Symbol SettingsIcon = (Symbol)0xE713;
         Symbol MobileIcon = (Symbol)0xE8EA;
         Symbol WebIcon = (Symbol)0xE774;
         Symbol HomeIcon = (Symbol)0xE80F;
+        Symbol ImportFileIcon = (Symbol)0xE8E5;
 
         private TemplateChoice templateChoice = TemplateChoice.None;
         private WriteableBitmap backgroundImage = null;
