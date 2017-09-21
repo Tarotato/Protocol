@@ -12,8 +12,12 @@ using Windows.UI.Input.Inking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
+
 namespace Protocol
 {
+    /// <summary>
+    /// The startpage holding the new project and open project options
+    /// </summary>
     public sealed partial class StartPage : Page
     {
         private List<InkStrokeContainer> strokes = new List<InkStrokeContainer>();
@@ -26,6 +30,7 @@ namespace Protocol
 
         private async void OnNewProjectClick(object sender, RoutedEventArgs e)
         {
+            // Open dialog to let users chose template
             PreloadTemplateDialog templateDialog = new PreloadTemplateDialog();
             await templateDialog.ShowAsync();
             if (templateDialog.result == ContentDialogResult.Primary)
@@ -45,16 +50,17 @@ namespace Protocol
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
             {
-                var projectName = folder.DisplayName;
+                // Get all the files in the project folder and loop through them
                 IReadOnlyList<StorageFile> files = await folder.GetFilesAsync();
                 foreach (var f in files)
                 {
-                    if (f.Name.Equals("metadata.txt"))
+                    // For each file that matches the files we are looking for, do operations
+                    if (f.Name.Equals("metadata.txt")) // Templates
                     {
                         string text = await FileIO.ReadTextAsync(f);
                         templateChoice = (TemplateChoice) Enum.Parse(typeof(TemplateChoice), text);
                     }
-                    else if (f.Name.Equals("components.txt"))
+                    else if (f.Name.Equals("components.txt")) // Shapes
                     {
                         // read file load shapes
                         string text = await FileIO.ReadTextAsync(f);
@@ -69,7 +75,7 @@ namespace Protocol
                         }
 
                     }
-                    else if(f != null && f.FileType.Equals(".gif"))
+                    else if(f != null && f.FileType.Equals(".gif")) // .gif are strokes
                     {
                         // Open a file stream for reading.
                         IRandomAccessStream stream = await f.OpenAsync(FileAccessMode.Read);

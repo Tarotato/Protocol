@@ -18,6 +18,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Shared.Views
 {
+    /// <summary>
+    /// Dialog for asking users for which templates they want to start with
+    /// </summary>
     public sealed partial class PreloadTemplateDialog : ContentDialog
     {
         public ContentDialogResult result { get; set; }

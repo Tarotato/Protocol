@@ -8,6 +8,11 @@ using Windows.UI.Xaml.Shapes;
 
 namespace Shared.Models
 {
+    /// <summary>
+    /// Class for storing all relevant details and info about a recognised shape
+    /// Can be serialised so that it can be saved in a project
+    /// </summary>
+
     [DataContract]
     public class CanvasComponent
     {

@@ -7,6 +7,9 @@ using System.Xml;
 
 namespace Shared.Utils
 {
+    /// <summary>
+    /// Serialiser that helps turn canvas component objects into savable strings
+    /// </summary>
     public static class Serializer
     {
         public static string Serialize<T>(this T obj)

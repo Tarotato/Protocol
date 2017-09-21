@@ -17,6 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Shared.Views
 {
+    /// <summary>
+    /// Dialog that asks user to confirm whether they want to save the current project when they start navigating away
+    /// </summary>
     public sealed partial class TernaryButtonDialog : ContentDialog
     {
         public ContentDialogResult result { get; set; }

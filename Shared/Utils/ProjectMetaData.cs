@@ -8,6 +8,9 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Shared.Utils
 {
+    /// <summary>
+    /// Class storing the information that needs to be saved and loaded back with project
+    /// </summary>
     public class ProjectMetaData
     {
         public Visibility templateVisibility { get; set; }

@@ -19,6 +19,9 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Shared.Utils
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Save
     {
         public delegate void ChangedEventHandler(String message);

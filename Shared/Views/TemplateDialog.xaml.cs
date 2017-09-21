@@ -18,6 +18,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Shared.Views
 {
+    /// <summary>
+    /// Dialog letting users choose between 3 different mobile templates
+    /// </summary>
     public sealed partial class TemplateDialog : ContentDialog
     {
         

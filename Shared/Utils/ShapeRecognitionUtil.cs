@@ -10,10 +10,14 @@ using Windows.UI;
 
 namespace Shared.Utils
 {
+    /// <summary>
+    /// Shape recognition helper class for consturcting shapes and finding out whether to delete
+    /// </summary>
     class ShapeRecognitionUtil
     {
         internal CanvasComponent BuildEllipse(InkAnalysisInkDrawing shape)
         {
+            // From the ink analysis result, construct ellipse
             CanvasComponent component = new CanvasComponent(CanvasComponent.ComponentType.Ellipse);
 
             var points = shape.Points;
@@ -38,6 +42,7 @@ namespace Shared.Utils
             transformGroup.Children.Add(translateTransform);
             ellipse.RenderTransform = transformGroup;
 
+            // Save ellipse information in component for use when erasing and saving
             component.a = ellipse.Width / 2.0;
             component.b = ellipse.Height / 2.0;
             component.rotAngle = rotAngle;
@@ -52,6 +57,7 @@ namespace Shared.Utils
 
         internal CanvasComponent BuildPolygon(InkAnalysisInkDrawing shape)
         {
+            // From ink analysis result, constuct polygon
             CanvasComponent component = new CanvasComponent(CanvasComponent.ComponentType.Polygon);
 
             var points = shape.Points;
@@ -60,6 +66,7 @@ namespace Shared.Utils
             foreach (var point in points)
             {
                 polygon.Points.Add(point);
+                // Save polygin information in component for use when erasing and saving
                 component.points.Add(point);
             }
             component.shape = polygon;
@@ -90,6 +97,7 @@ namespace Shared.Utils
 
         internal List<Shape> BuildComponents(List<CanvasComponent> components)
         {
+            // For loading back saved shapes, not currently working
             List<Shape> shapes = new List<Shape>();
             foreach (CanvasComponent component in components)
             {
@@ -110,6 +118,7 @@ namespace Shared.Utils
 
         private Ellipse BuildEllipseFromComponent(CanvasComponent component)
         {
+            // Constructing ellipse from saved component details
             Ellipse ellipse = new Ellipse();
             ellipse.Stroke = new SolidColorBrush(component.stroke);
             ellipse.StrokeThickness = component.strokeThickness;
@@ -138,6 +147,7 @@ namespace Shared.Utils
 
         private Polygon BuildPolygonFromComponent(CanvasComponent component)
         {
+            // Constructing polygon from saved component details
             Polygon polygon = new Polygon();
             polygon.Stroke = new SolidColorBrush(component.stroke);
             polygon.StrokeThickness = component.strokeThickness;

@@ -16,6 +16,9 @@ using Windows.UI;
 
 namespace Protocol
 {
+    /// <summary>
+    /// The viewmodel for the main canvas, deals with all stroke drawing, erasing and shape recognition
+    /// </summary>
     public class MainCanvasViewModel
     {
         public delegate void ChangedEventHandler();
@@ -30,13 +33,13 @@ namespace Protocol
 
         private Save save = new Save();
 
-        // fields for dry erasing
+        // Fields for dry erasing
         private bool _isErasing;
         private Point _lastPoint;
         private List<InkStrokeContainer> _strokes;
         private StorageFolder _storageFolder;
 
-        // stroke recognition
+        // Stroke recognition
         ShapeRecognitionUtil shapeHelper = new ShapeRecognitionUtil();
         InkAnalyzer inkAnalyzer = new InkAnalyzer();
         InkAnalysisResult inkAnalysisResults = null;
@@ -50,6 +53,7 @@ namespace Protocol
             _storageFolder = parameters.folder;
             components = parameters.components;
 
+            // Add listener for sacing feedback
             save.ShowFlyoutAboveInkToolbar += ShowFlyout;
         }
 
@@ -78,6 +82,7 @@ namespace Protocol
 
         internal void DrawInk(CanvasDrawingSession session)
         {
+            // Draw all strokes in _strokes onto the main canvas
             foreach (var item in _strokes)
             {
                 var strokes = item.GetStrokes();
@@ -123,6 +128,7 @@ namespace Protocol
 
         private void DrawEllipse(InkAnalysisInkDrawing shape)
         {
+            // Part of loading back the shapes, not working at the moment
             CanvasComponent ellipse = shapeHelper.BuildEllipse(shape);
 
             RemoveStrokes(shape);
@@ -137,6 +143,7 @@ namespace Protocol
 
         private void DrawPolygon(InkAnalysisInkDrawing shape)
         {
+            // Part of loading back the shapes, not working at the moment
             CanvasComponent polygon = shapeHelper.BuildPolygon(shape);
 
             RemoveStrokes(shape);
@@ -151,6 +158,7 @@ namespace Protocol
 
         private void RemoveStrokes(InkAnalysisInkDrawing shape)
         {
+            // Find stroke that has id: strokeID and delete it
             foreach (var strokeId in shape.GetStrokeIds())
             {
                 RemoveStroke(strokeId);

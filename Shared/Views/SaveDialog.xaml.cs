@@ -8,6 +8,9 @@ using System;
 
 namespace Shared.Views
 {
+    /// <summary>
+    /// Dialog prompting deatils for saving a project
+    /// </summary>
     public sealed partial class SaveDialog : ContentDialog
     {
         public ContentDialogResult result { get; set; }

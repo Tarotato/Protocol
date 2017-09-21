@@ -24,7 +24,7 @@ using Windows.Graphics.Imaging;
 namespace Protocol
 {
     /// <summary>
-    /// The main page holding the canvas and toolbar
+    /// The main page holding the canvases and toolbar
     /// </summary>
     public sealed partial class MainCanvas : Page
     {
@@ -53,6 +53,8 @@ namespace Protocol
         public MainCanvas()
         {
             this.InitializeComponent();
+
+            // Set up listeners
             inkToolbar.Loading += InkToolbar_Loading;
             Loaded += MainCanvas_Loaded;
         }
@@ -60,42 +62,15 @@ namespace Protocol
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             var parameters = e.Parameter as MainCanvasParams;
+            // Get viewmodel from parameters and set up all necessary listeners
             viewModel = new MainCanvasViewModel(parameters);
             viewModel.DrawCanvasInvalidated += Invalidate_DrawingCanvas;
             viewModel.ShowFlyoutAboveToolbar += ShowFlyout;
             viewModel.AddShapeToCanvas += AddShapeToRecognitionCanvas;
             viewModel.RemoveShapeFromCanvas += RemoveShapeFromRecognitionCanvas;
 
-            templateChoice = parameters.template;
-
-            if (templateChoice == TemplateChoice.Browser)
-            {
-                templateToggle.IsOn = true;
-                BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/browser.png", UriKind.Absolute));
-                bgTemplate.Source = bm;
-                bgTemplate.Visibility = Visibility.Visible;
-            }
-            else if (templateChoice == TemplateChoice.MobYY)
-            {
-                templateToggle.IsOn = true;
-                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYY.png", UriKind.Absolute));
-                bgTemplate.Source = bm;
-                bgTemplate.Visibility = Visibility.Visible;
-            }
-            else if (templateChoice == TemplateChoice.MobYX)
-            {
-                templateToggle.IsOn = true;
-                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYX.png", UriKind.Absolute));
-                bgTemplate.Source = bm;
-                bgTemplate.Visibility = Visibility.Visible;
-            }
-            else if (templateChoice == TemplateChoice.MobXX)
-            {
-                templateToggle.IsOn = true;
-                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobXX.png", UriKind.Absolute));
-                bgTemplate.Source = bm;
-                bgTemplate.Visibility = Visibility.Visible;
-            }
+            // Load the template if there is one
+            loadTemplate(parameters.template);
         }
 
         private void MainCanvas_Loaded(object sender, RoutedEventArgs e)
@@ -107,7 +82,7 @@ namespace Protocol
 
             // Turn on multi pointer input
             inkPresenter.ActivateCustomDrying();
-            inkPresenter.SetPredefinedConfiguration(Windows.UI.Input.Inking.InkPresenterPredefinedConfiguration.SimpleMultiplePointer);
+            inkPresenter.SetPredefinedConfiguration(InkPresenterPredefinedConfiguration.SimpleMultiplePointer);
 
             _inkSynchronizer = inkPresenter.ActivateCustomDrying();
             inkPresenter.StrokesCollected += InkPresenter_StrokesCollected;
@@ -126,6 +101,7 @@ namespace Protocol
 
             if (flyout != null)
             {
+                // Find Erase all button and set up listener
                 var content = flyout.Content as StackPanel;
                 
                 var button = content.Children.ElementAt(3) as InkToolbarFlyoutItem;
@@ -139,6 +115,7 @@ namespace Protocol
 
         private void InkPresenter_StrokesCollected(InkPresenter sender, InkStrokesCollectedEventArgs args)
         {
+            // Custom drying
             var strokes = _inkSynchronizer.BeginDry();
 
             var container = new InkStrokeContainer();
@@ -149,7 +126,7 @@ namespace Protocol
             _inkSynchronizer.EndDry();
             drawingCanvas.Invalidate();
 
-            if (inkToShapeButton.IsChecked.Value) // store strokes for recognition if button is checked
+            if (inkToShapeButton.IsChecked.Value) // Store a copy of the strokes for recognition if button is checked
             {
                 viewModel.RecognizeStrokes(clonedStrokes);
             }
@@ -161,8 +138,8 @@ namespace Protocol
 
         private void AddShapeToRecognitionCanvas(Shape shape)
         {
+            // Draw the recognised shapes and invalidate canvas to remove the corresponding strokes
             recognitionCanvas.Children.Add(shape);
-            var count = recognitionCanvas.Children.Count;
             drawingCanvas.Invalidate();
         }
 
@@ -173,18 +150,22 @@ namespace Protocol
 
         private void DrawCanvas(CanvasControl sender, CanvasDrawEventArgs args)
         {
+            // Redraws all the strokes in _strokes on canvas control
             viewModel.DrawInk(args.DrawingSession);
         }
 
         private void UnprocessedInput_PointerPressed(InkUnprocessedInput sender, PointerEventArgs args)
         {
+            // Check if its an erasing stroke
             if (args.CurrentPoint.Properties.IsEraser || inkToolbar.GetToolButton(InkToolbarTool.Eraser).IsChecked.Value)
             {
+                // Start erasing both shapes and strokes
                 viewModel.AddListeners(inkCanvas.InkPresenter.UnprocessedInput);
                 viewModel.StartErasing(args.CurrentPoint.Position);
             }
             else
             {
+                // Stop listening to the user input
                 viewModel.RemoveListeners(inkCanvas.InkPresenter.UnprocessedInput);
             }
             args.Handled = true;
@@ -192,6 +173,7 @@ namespace Protocol
 
         private void EraseAllInk(object sender, RoutedEventArgs e)
         {
+            // Delete all strokes and shapes on the canvases
             viewModel.ClearStokes();
             drawingCanvas.Invalidate();
             recognitionCanvas.Children.Clear();
@@ -219,6 +201,7 @@ namespace Protocol
 
         private void ToggleTouch_Click(object sender, RoutedEventArgs e)
         {
+            // Toggle between the two input types, Pen and Touch
             if (toggleTouchButton.IsChecked == true)
             {
                 inkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Touch;
@@ -343,6 +326,38 @@ namespace Protocol
             templateChoice = td.templateChoice;
         }
 
+        private void loadTemplate(TemplateChoice templateChoice)
+        {
+            if (templateChoice == TemplateChoice.Browser)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri("ms-appx:///Assets/browser.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+            else if (templateChoice == TemplateChoice.MobYY)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYY.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+            else if (templateChoice == TemplateChoice.MobYX)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobYX.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+            else if (templateChoice == TemplateChoice.MobXX)
+            {
+                templateToggle.IsOn = true;
+                BitmapImage bm = new BitmapImage(new Uri($"ms-appx:///Assets/mobXX.png", UriKind.Absolute));
+                bgTemplate.Source = bm;
+                bgTemplate.Visibility = Visibility.Visible;
+            }
+        }
+
         private void ToggleSwitch_Toggled(object sender, RoutedEventArgs e)
         {
             if (bgTemplate.Visibility == Visibility.Visible)
@@ -418,11 +433,5 @@ namespace Protocol
                 this.Frame.Navigate(typeof(StartPage));
             }
         }
-
-        //private void randomButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    viewModel.LoadShapes();
-        //    var count = recognitionCanvas.Children.Count;
-        //}
     }
 }
