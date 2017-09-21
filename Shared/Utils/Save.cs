@@ -20,7 +20,7 @@ using Windows.UI.Xaml.Media.Imaging;
 namespace Shared.Utils
 {
     /// <summary>
-    /// 
+    ///     This save class handles saving the canvas as an image and as a project
     /// </summary>
     public class Save
     {
@@ -33,7 +33,8 @@ namespace Shared.Utils
             IsTooLarge = false;
             //Create a bitmap of the recognition canvas so it can be merged with the inkcanvas image
             WriteableBitmap recogWBitmap1 = await SaveRecognitionCanvas1(recognitionCanvas, width, height);
-
+            
+            //Create a second bitmap if the pixel stream is too large
             WriteableBitmap recogWBitmap;
 
             if (IsTooLarge)
@@ -45,17 +46,17 @@ namespace Shared.Utils
                 recogWBitmap = new WriteableBitmap((int)width, (int)height);
             }
 
-            //Create a temporary inkcanvas image of the inkcanvas
+            //Create an image to save the InkCanvas strokes to
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
             var file = await pictureFolder.CreateFileAsync("tempImage.png", CreationCollisionOption.ReplaceExisting);
 
             if (file != null)
             {
-                //Write to the provided save file
+                //Write to the provided save file tempImage.png
                 CanvasDevice device = CanvasDevice.GetSharedDevice();
                 CanvasRenderTarget renderTarget = new CanvasRenderTarget(device, (int)width, (int)height, 96);
 
-                //Add strokes to be drawn
+                //Add strokes to be drawn to the drawing session
                 using (var ds = renderTarget.CreateDrawingSession())
                 {
                     ds.Clear(Colors.White);
@@ -67,10 +68,11 @@ namespace Shared.Utils
 
                 using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite))
                 {
+                    //Save the image to tempImage.png
                     await renderTarget.SaveAsync(fileStream, CanvasBitmapFileFormat.Png, 1f);
                 }
 
-                //Load image as BitmapImage then convert to WriteableBitmap
+                //Load tempImage.png as a BitmapImage then convert to WriteableBitmap
                 BitmapImage bitmapImage = new BitmapImage();
                 WriteableBitmap w;
                 var savedfiles = await pictureFolder.GetFilesAsync();
@@ -78,53 +80,59 @@ namespace Shared.Utils
                 {
                     if (imageFile.Name.StartsWith("tempImage"))
                     {
-                        //Create BitmapImage
+                        //Read the image file
                         using (IRandomAccessStream fileStream = await imageFile.OpenAsync(FileAccessMode.Read))
                         {
                             bitmapImage.DecodePixelHeight = 100;
                             bitmapImage.DecodePixelWidth = 100;
+                            //Write the image into a bitmap
                             await bitmapImage.SetSourceAsync(fileStream);
                         }
 
                         int h = bitmapImage.PixelHeight;
                         int wd = bitmapImage.PixelWidth;
-
-                        //Create WriteableBitmap
+                        
                         using (var stream = await file.OpenReadAsync())
                         {
+                            //Obtain the bitmap dimensions for the WritatbleBitmap
                             w = new WriteableBitmap(wd, h);
+                            //Write the contents of tempImage.png to the WritableBitmap
                             await w.SetSourceAsync(stream);
 
-                            //Merge inkcanvas image with other images
+                            //Merge the inkcanvas image with the shapes on the recognition canvas
                             SaveImageFile(await MergeImages(w, metaData, recogWBitmap1, recogWBitmap));                            
                         }
                     }
                 }
             }
-        }
-
+        }        
+        
         private async Task<WriteableBitmap> SaveRecognitionCanvas1(Canvas canvas, double width, double height)
         {
+            //Create a temporary image file for the recognition canvas - recogCanvas.png
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
             var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.GenerateUniqueName);
             if (savefile == null)
                 return null;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
 
+            //Retrieve the pixel data from the canvas
             RenderTargetBitmap renderBitmap = new RenderTargetBitmap();
             await renderBitmap.RenderAsync(canvas, (int)width, (int)height);
             IBuffer x = await renderBitmap.GetPixelsAsync();
 
-            //Only draw second bitmap when canvas is full screen (large)
+            //Set the IsTooLarge flag if the IBuffer is too long for writing. This prevents an exception and writes only half the image.
             //7664640 - max buffer size
             int value;
             if ((int)x.Length > 7664640)
             {
+                //Write only the max length of data
                 IsTooLarge = true;
                 value = 7664640;
             }
             else
             {
+                //Write the whole lenght of data
                 value = (int)x.Length;
             }
 
@@ -132,6 +140,7 @@ namespace Shared.Utils
             WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
             using (Stream pb = WBitmap.PixelBuffer.AsStream())
             {
+                //This method will throw and exception if he pixel array is too large
                 await pb.WriteAsync(WindowsRuntimeBufferExtensions.ToArray(x), 0, value);
             }
 
@@ -140,7 +149,7 @@ namespace Shared.Utils
             var length = pixels.Length;
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
 
-            // Save the image file with jpg extension 
+            // Save the image file with png extension so the image is transparent for merging
             BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
             encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)WBitmap.PixelWidth, (uint)WBitmap.PixelHeight, 96.0, 96.0, pixels);
             await encoder.FlushAsync();
@@ -150,23 +159,27 @@ namespace Shared.Utils
 
         private async Task<WriteableBitmap> SaveRecognitionCanvas2(Canvas canvas, double width, double height)
         {
+            //Create a temporary image file for the recognition canvas - recogCanvas.png
             StorageFolder pictureFolder = ApplicationData.Current.LocalFolder;
             var savefile = await pictureFolder.CreateFileAsync("recogCanvas.png", CreationCollisionOption.GenerateUniqueName);
             if (savefile == null)
                 return null;
             IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite);
 
+            //Retrieve the pixel data from the canvas
             RenderTargetBitmap renderBitmap = new RenderTargetBitmap();
             await renderBitmap.RenderAsync(canvas, (int)width, (int)height);
             IBuffer x = await renderBitmap.GetPixelsAsync();
 
             //Write the image pixels to a bitmap
             WriteableBitmap WBitmap = new WriteableBitmap((int)width, (int)height);
-            byte[] lol = WindowsRuntimeBufferExtensions.ToArray(x);
-            Array.Reverse(lol);
+            byte[] pixelArray = WindowsRuntimeBufferExtensions.ToArray(x);
+            //Reverse the array to write the rest of the pixel data, since writing can only start from the beginning of an array
+            Array.Reverse(pixelArray);
             using (Stream pb = WBitmap.PixelBuffer.AsStream())
             {
-                await pb.WriteAsync(lol, 7664640, (int)x.Length - 7664640);
+                //Write the remaing length of the pixels (the original array - first 7664640 values that were written)
+                await pb.WriteAsync(pixelArray, 7664640, (int)x.Length - 7664640);
             }
             
             Stream pixelStream = WBitmap.PixelBuffer.AsStream();
@@ -174,9 +187,10 @@ namespace Shared.Utils
             var length = pixels.Length;
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
 
-            // Save the image file with jpg extension 
+            // Save the image file with png extension so the image is transparent for merging
             BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
             encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)WBitmap.PixelWidth, (uint)WBitmap.PixelHeight, 96.0, 96.0, pixels);
+            //Rotate the image 180 degreees, as it was written upside down due to reversing the pixel array
             encoder.BitmapTransform.Rotation = BitmapRotation.Clockwise180Degrees;
             await encoder.FlushAsync();
 
@@ -222,7 +236,7 @@ namespace Shared.Utils
             byte[] pixels = new byte[pixelStream.Length];
             await pixelStream.ReadAsync(pixels, 0, pixels.Length);
 
-            // Save the image file with jpg extension 
+            // Save the image file with png extension 
             encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint)finalImage.PixelWidth, (uint)finalImage.PixelHeight, 96.0, 96.0, pixels);
             await encoder.FlushAsync();
 
@@ -233,6 +247,7 @@ namespace Shared.Utils
             //Use existing folder
             if (storageFolder != null)
             {
+                //Save the strokes drawn, the project metadata so the current state of the eapplication is saved, and the shapes
                 SaveStrokes(storageFolder, strokes);
                 SaveMetaData(metaData, storageFolder);
                 SaveCanvasComponents(components, storageFolder);
@@ -243,8 +258,8 @@ namespace Shared.Utils
             SaveDialog save = new SaveDialog();
             await save.ShowAsync();
             if (save.result == ContentDialogResult.Primary)
-            {
-                //Save
+            {   
+                //Store the chosen folder so it is automatically saved to the location specified in the future
                 storageFolder = save.folder;
                 SaveStrokes(storageFolder, strokes);
                 SaveMetaData(metaData, storageFolder);
@@ -314,11 +329,12 @@ namespace Shared.Utils
 
         private async void SaveMetaData(ProjectMetaData metaData, StorageFolder storageFolder)
         {
+            //Create a text file to store the project metadata
             var file = await storageFolder.CreateFileAsync("metadata.txt", CreationCollisionOption.ReplaceExisting);
             var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
             using (var outputStream = stream.GetOutputStreamAt(0))
             {
-                // We'll add more code here in the next step.
+                // Store information about the template chosen if it was enabled
                 using (var dataWriter = new DataWriter(outputStream))
                 {
                     if (metaData.templateVisibility == Visibility.Collapsed)
@@ -330,16 +346,17 @@ namespace Shared.Utils
                     await outputStream.FlushAsync();
                 }
             }
-            stream.Dispose(); // Or use the stream variable (see previous code snippet) with a using statement as well.
+            stream.Dispose();
         }
 
         private async void SaveCanvasComponents(List<CanvasComponent> components,StorageFolder storageFolder)
         {
+            //Create a text file to store the computer generated shapes (components) in the project
             var file = await storageFolder.CreateFileAsync("components.txt", CreationCollisionOption.ReplaceExisting);
             var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
             using (var outputStream = stream.GetOutputStreamAt(0))
             {
-                // We'll add more code here in the next step.
+                // Store information about each computer generated shape in the project
                 using (var dataWriter = new DataWriter(outputStream))
                 {
                     foreach (CanvasComponent component in components)
@@ -351,15 +368,17 @@ namespace Shared.Utils
                     await outputStream.FlushAsync();
                 }
             }
-            stream.Dispose(); // Or use the stream variable (see previous code snippet) with a using statement as well.
+            stream.Dispose(); 
         }
 
         public async Task<ContentDialogResult> ConfirmSave(List<InkStrokeContainer> strokes, StorageFolder folder, ProjectMetaData metaData, List<CanvasComponent> components)
         {
+            //Open the dialog for confirming save before navigation away from the curent project
             TernaryButtonDialog t = new TernaryButtonDialog();
             await t.ShowAsync();
             if (t.result == ContentDialogResult.Primary)
             {
+                //If they confirm save, execute save method
                 await SaveProject(folder, strokes, metaData, components);
             }
             return t.result;
